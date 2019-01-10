@@ -19,6 +19,24 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity
+                android:name=".ScrollingActivity"
+                android:label="@string/title_activity_scrolling"
+                android:parentActivityName=".MainActivity"
+                android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="com.adityapk.zcash.zec_qt_wallet_android.MainActivity"/>
+        </activity>
+        <activity
+                android:name=".ReceiveActivity"
+                android:label="@string/title_activity_receive"
+                android:parentActivityName=".MainActivity"
+                android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="com.adityapk.zcash.zec_qt_wallet_android.MainActivity"/>
+        </activity>
     </application>
 
 </manifest>
