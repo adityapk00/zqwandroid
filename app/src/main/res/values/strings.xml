@@ -92,4 +92,5 @@
         "when a user tries to pick up one of cards.\n\n"
     </string>
     <string name="title_activity_receive">ReceiveActivity</string>
+    <string name="title_activity_send">SendActivity</string>
 </resources>

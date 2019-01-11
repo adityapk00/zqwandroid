@@ -37,6 +37,15 @@
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value="com.adityapk.zcash.zec_qt_wallet_android.MainActivity"/>
         </activity>
+        <activity
+                android:name=".SendActivity"
+                android:label="@string/title_activity_send"
+                android:parentActivityName=".MainActivity"
+                android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="com.adityapk.zcash.zec_qt_wallet_android.MainActivity"/>
+        </activity>
     </application>
 
 </manifest>

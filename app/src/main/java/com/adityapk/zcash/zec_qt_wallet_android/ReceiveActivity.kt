@@ -1,28 +1,18 @@
 package com.adityapk.zcash.zec_qt_wallet_android
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.support.v7.app.AppCompatActivity;
-
-import kotlinx.android.synthetic.main.activity_receive.*
-import com.google.zxing.WriterException
-import android.R.attr.bitmap
-import android.support.v4.app.FragmentActivity
+import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidmads.library.qrgenearator.QRGContents
 import androidmads.library.qrgenearator.QRGEncoder
-import kotlinx.android.synthetic.main.content_receive.*
-import android.R.attr.label
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.Context.CLIPBOARD_SERVICE
-import android.support.v4.content.ContextCompat.getSystemService
-
-
+import com.google.zxing.WriterException
+import kotlinx.android.synthetic.main.activity_receive.*
 
 
 class ReceiveActivity : AppCompatActivity() {

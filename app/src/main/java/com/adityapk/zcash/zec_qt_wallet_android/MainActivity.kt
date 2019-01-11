@@ -25,12 +25,18 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        val fab1 = findViewById<FloatingActionButton>(R.id.fab1);
-        val fab2 = findViewById<FloatingActionButton>(R.id.fab2);
-        val fab3 = findViewById<FloatingActionButton>(R.id.fab3);
+        val fab1 = findViewById<FloatingActionButton>(R.id.fab1)
+        val fab2 = findViewById<FloatingActionButton>(R.id.fab2)
+        val fab3 = findViewById<FloatingActionButton>(R.id.fab3)
 
         fab1.setOnClickListener {view ->
             val intent = Intent(this, ReceiveActivity::class.java)
+            startActivity(intent)
+        }
+
+
+        fab2.setOnClickListener {view ->
+            val intent = Intent(this, SendActivity::class.java)
             startActivity(intent)
         }
 
