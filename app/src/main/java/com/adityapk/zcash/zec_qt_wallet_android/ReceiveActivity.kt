@@ -27,7 +27,7 @@ class ReceiveActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val addr = "zs1gv64eu0v2wx7raxqxlmj354y9ycznwaau9kduljzczxztvs4qcl00kn2sjxtejvrxnkucw5xx9u"
+        val addr = DataModel.mainResponseData?.saplingAddress ?: "no address"
 
         val qrgEncoder = QRGEncoder(addr, null, QRGContents.Type.TEXT, 300)
         try {

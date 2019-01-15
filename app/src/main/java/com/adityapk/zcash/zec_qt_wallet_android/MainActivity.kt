@@ -1,21 +1,56 @@
 package com.adityapk.zcash.zec_qt_wallet_android
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
-import android.support.design.widget.Snackbar
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.Window
-
+import android.widget.TextView
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
-import android.support.v4.view.ViewCompat.animate
-import android.R.attr.translationY
-
+import kotlinx.android.synthetic.main.content_main.*
+import okhttp3.*
+import okio.ByteString
+import java.text.DecimalFormat
 
 
 class MainActivity : AppCompatActivity() {
+
+    private inner class EchoWebSocketListener : WebSocketListener() {
+
+        private val NORMAL_CLOSURE_STATUS = 1000
+        private val TAG = "MainActivity";
+
+        override fun onOpen(webSocket: WebSocket, response: Response) {
+            Log.d(TAG, "Opened Websocket")
+        }
+
+        override fun onMessage(webSocket: WebSocket?, text: String?) {
+            DataModel.parseResponse(text!!)
+            updateUI()
+            Log.i(TAG, "Recieving $text")
+        }
+
+        override fun onMessage(webSocket: WebSocket?, bytes: ByteString) {
+            Log.i(TAG, "Receiving bytes : " + bytes.hex())
+        }
+
+        override fun onClosing(webSocket: WebSocket, code: Int, reason: String?) {
+            webSocket.close(NORMAL_CLOSURE_STATUS, null)
+            Log.i(TAG,"Closing : $code / $reason")
+        }
+
+        override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
+            Log.i(TAG,"Failed $t")
+        }
+
+    }
+
+    var client: OkHttpClient? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,10 +59,6 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-
-        val fab1 = findViewById<FloatingActionButton>(R.id.fab1)
-        val fab2 = findViewById<FloatingActionButton>(R.id.fab2)
-        val fab3 = findViewById<FloatingActionButton>(R.id.fab3)
 
         fab1.setOnClickListener {view ->
             val intent = Intent(this, ReceiveActivity::class.java)
@@ -42,13 +73,37 @@ class MainActivity : AppCompatActivity() {
 
         fab.setOnClickListener { view ->
             if(!isFABOpen){
-                showFABMenu();
+                showFABMenu()
             } else {
-                closeFABMenu();
+                closeFABMenu()
             }
+        }
+
+        client = OkHttpClient()
+        start()
+
+        balanceUSD.setOnClickListener { view ->
+            Toast.makeText(applicationContext, "1 ZEC = $${DecimalFormat("#.##").format(DataModel.mainResponseData?.zecprice)}", Toast.LENGTH_LONG).show()
         }
     }
 
+    private fun start() {
+        val request = Request.Builder().url("ws://10.0.2.2:8237").build()
+        val listener = EchoWebSocketListener()
+        val ws = client?.newWebSocket(request, listener)
+        ws?.send("Hello World")
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun updateUI() {
+        runOnUiThread {
+            val bal = DataModel.mainResponseData?.balance ?: 0.0
+            val zPrice = DataModel.mainResponseData?.zecprice ?: 0.0
+
+            balance.text = "ZEC " + DecimalFormat("#.########").format(bal)
+            balanceUSD.text = "$ " + DecimalFormat("#.##").format(bal * zPrice)
+        }
+    }
 
     var isFABOpen = false
 
