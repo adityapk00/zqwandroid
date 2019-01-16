@@ -2,6 +2,7 @@ package com.adityapk.zcash.zec_qt_wallet_android
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.v7.app.AppCompatActivity
@@ -10,6 +11,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
 import android.widget.Toast
+import com.beust.klaxon.json
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import okhttp3.*
@@ -17,7 +19,10 @@ import okio.ByteString
 import java.text.DecimalFormat
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), TransactionItem.OnFragmentInteractionListener {
+    override fun onFragmentInteraction(uri: Uri) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     private inner class EchoWebSocketListener : WebSocketListener() {
 
@@ -44,13 +49,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-            Log.i(TAG,"Failed $t")
+            Log.e(TAG,"Failed $t")
         }
-
     }
 
     var client: OkHttpClient? = null
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,7 +68,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-
         fab2.setOnClickListener {view ->
             val intent = Intent(this, SendActivity::class.java)
             startActivity(intent)
@@ -78,20 +80,25 @@ class MainActivity : AppCompatActivity() {
                 closeFABMenu()
             }
         }
-
         client = OkHttpClient()
         start()
 
         balanceUSD.setOnClickListener { view ->
             Toast.makeText(applicationContext, "1 ZEC = $${DecimalFormat("#.##").format(DataModel.mainResponseData?.zecprice)}", Toast.LENGTH_LONG).show()
         }
+
+        supportFragmentManager.beginTransaction().add(txList.id , TransactionItem.newInstance("a", "b"), "tag1").commit()
+        supportFragmentManager.beginTransaction().add(txList.id , TransactionItem.newInstance("c", "d"), "tag2").commit()
     }
 
     private fun start() {
         val request = Request.Builder().url("ws://10.0.2.2:8237").build()
         val listener = EchoWebSocketListener()
         val ws = client?.newWebSocket(request, listener)
-        ws?.send("Hello World")
+
+        val cmd = json { obj("command" to "getInfo") }
+        ws?.send(cmd.toJsonString())
+
     }
 
     @SuppressLint("SetTextI18n")
@@ -108,7 +115,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    var isFABOpen = false
+    private var isFABOpen = false
 
     private fun showFABMenu() {
         isFABOpen = true
