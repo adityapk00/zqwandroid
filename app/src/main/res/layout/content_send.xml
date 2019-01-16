@@ -17,7 +17,7 @@
             android:layout_marginEnd="16dp" android:layout_marginStart="16dp"
             app:layout_constraintBottom_toTopOf="@id/AmountLayout"
             android:layout_marginBottom="8dp" app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="16dp"
-            android:background="@drawable/layout_bg">
+    >
         <TextView
                 android:text="To"
                 android:layout_width="wrap_content"
@@ -62,7 +62,8 @@
             app:layout_constraintStart_toStartOf="parent" android:id="@+id/AmountLayout"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            app:layout_constraintBottom_toTopOf="@id/MemoLayout" app:layout_constraintTop_toBottomOf="@id/toLayout">
+            app:layout_constraintBottom_toTopOf="@id/MemoLayout" app:layout_constraintTop_toBottomOf="@id/toLayout"
+            android:background="@drawable/layout_bg">
         <EditText
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" app:layout_constraintTop_toTopOf="parent"
@@ -109,7 +110,7 @@
             android:id="@+id/MemoLayout" android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@id/AmountLayout" app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
-            android:background="@drawable/layout_bg" android:layout_marginBottom="8dp"
+            android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toTopOf="@+id/button3">
         <EditText
                 android:layout_width="0dp"

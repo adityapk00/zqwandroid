@@ -50,8 +50,16 @@
             app:layout_constraintStart_toStartOf="parent" android:id="@+id/scrollView3"
             app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="16dp"
             android:fillViewport="true" android:clipToPadding="false">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                      android:orientation="vertical"/>
+        <android.support.constraint.ConstraintLayout android:layout_width="match_parent"
+                                                     android:layout_height="wrap_content"
+                                                     android:id="@+id/constraintLayout2">
+            <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content" app:srcCompat="@android:drawable/sym_def_app_icon"
+                    android:id="@+id/imageView5"
+                    app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" app:layout_constraintBottom_toBottomOf="parent"/>
+        </android.support.constraint.ConstraintLayout>
     </ScrollView>
     <ImageView
             android:layout_width="wrap_content"
