@@ -87,8 +87,8 @@ class MainActivity : AppCompatActivity(), TransactionItem.OnFragmentInteractionL
             Toast.makeText(applicationContext, "1 ZEC = $${DecimalFormat("#.##").format(DataModel.mainResponseData?.zecprice)}", Toast.LENGTH_LONG).show()
         }
 
-        supportFragmentManager.beginTransaction().add(txList.id , TransactionItem.newInstance("a", "b"), "tag1").commit()
-        supportFragmentManager.beginTransaction().add(txList.id , TransactionItem.newInstance("c", "d"), "tag2").commit()
+        supportFragmentManager.beginTransaction().add(txList.id , TransactionItem.newInstance("a", "even"), "tag1").commit()
+        supportFragmentManager.beginTransaction().add(txList.id , TransactionItem.newInstance("c", "odd"), "tag2").commit()
     }
 
     private fun start() {

@@ -4,11 +4,12 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
+import android.support.constraint.ConstraintLayout
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.android.synthetic.main.fragment_transaction_item.*
+import android.widget.TextView
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -37,6 +38,7 @@ class TransactionItem : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+
     }
 
     override fun onCreateView(
@@ -44,7 +46,13 @@ class TransactionItem : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_transaction_item, container, false)
+        val view = inflater.inflate(R.layout.fragment_transaction_item, container, false)
+
+        val txt = view.findViewById<TextView>(R.id.txdate)
+        txt.text = "Hello world $param1"
+        if (param2 == "odd")
+            view.findViewById<ConstraintLayout>(R.id.outlineLayout).background = null
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
