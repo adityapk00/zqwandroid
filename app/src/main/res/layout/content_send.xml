@@ -10,11 +10,59 @@
         tools:context=".SendActivity">
 
     <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/toLayout"
+            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="16dp" android:layout_marginStart="16dp"
+            app:layout_constraintBottom_toTopOf="@id/AmountLayout"
+            android:layout_marginBottom="8dp" app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="16dp"
+            android:background="@drawable/layout_bg">
+        <TextView
+                android:text="To"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                android:id="@+id/textView7"
+                tools:layout_conversion_absoluteHeight="19dp"
+                tools:layout_conversion_absoluteWidth="16dp" android:layout_marginTop="8dp"
+                app:layout_constraintTop_toTopOf="parent" android:layout_marginStart="8dp"/>
+        <EditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:ems="10"
+                android:id="@+id/editText"
+                app:layout_constraintEnd_toStartOf="@+id/imageButton"
+                app:layout_constraintHorizontal_chainStyle="spread_inside" tools:layout_conversion_absoluteHeight="45dp"
+                tools:layout_conversion_absoluteWidth="0dp" app:layout_constraintTop_toBottomOf="@+id/textView7"
+                android:layout_marginTop="16dp"
+                app:layout_constraintStart_toStartOf="parent" android:fontFamily="monospace" android:singleLine="true"
+                android:selectAllOnFocus="true" android:textIsSelectable="true" android:hint="Address"/>
+        <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" app:srcCompat="@android:drawable/ic_menu_camera"
+                android:id="@+id/imageButton"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView7" tools:layout_conversion_absoluteHeight="51dp"
+                tools:layout_conversion_absoluteWidth="56dp" android:layout_marginTop="16dp"
+                android:layout_marginEnd="8dp"/>
+        <TextView
+                android:text="Valid Address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView11" android:layout_marginEnd="16dp" app:layout_constraintEnd_toEndOf="parent"
+                android:textColor="@color/colorPrimary" android:textStyle="bold" android:layout_marginTop="8dp"
+                app:layout_constraintTop_toTopOf="parent"/>
+    </android.support.constraint.ConstraintLayout>
+    <android.support.constraint.ConstraintLayout
             android:layout_width="0dp"
-            android:layout_height="wrap_content" android:layout_marginTop="16dp"
-            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent" android:id="@+id/cardView" android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp" android:background="@drawable/layout_bg">
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" android:id="@+id/AmountLayout"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBottom_toTopOf="@id/MemoLayout" app:layout_constraintTop_toBottomOf="@id/toLayout">
         <EditText
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" app:layout_constraintTop_toTopOf="parent"
@@ -57,56 +105,12 @@
     </android.support.constraint.ConstraintLayout>
     <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/cardView" android:id="@+id/cardView2"
-            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="16dp" android:layout_marginStart="16dp">
-        <TextView
-                android:text="To"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="parent"
-                android:id="@+id/textView7"
-                tools:layout_conversion_absoluteHeight="19dp"
-                tools:layout_conversion_absoluteWidth="16dp" android:layout_marginTop="8dp"
-                app:layout_constraintTop_toTopOf="parent" android:layout_marginStart="8dp"/>
-        <EditText
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:text="Address"
-                android:ems="10"
-                android:id="@+id/editText"
-                app:layout_constraintEnd_toStartOf="@+id/imageButton"
-                app:layout_constraintHorizontal_chainStyle="spread_inside" tools:layout_conversion_absoluteHeight="45dp"
-                tools:layout_conversion_absoluteWidth="0dp" app:layout_constraintTop_toBottomOf="@+id/textView7"
-                android:layout_marginTop="16dp"
-                app:layout_constraintStart_toStartOf="parent" android:fontFamily="monospace" android:singleLine="true"
-                android:selectAllOnFocus="true" android:textIsSelectable="true"/>
-        <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" app:srcCompat="@android:drawable/ic_menu_camera"
-                android:id="@+id/imageButton"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView7" tools:layout_conversion_absoluteHeight="51dp"
-                tools:layout_conversion_absoluteWidth="56dp" android:layout_marginTop="16dp"
-                android:layout_marginEnd="8dp"/>
-        <TextView
-                android:text="Valid Address"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/textView11" android:layout_marginEnd="16dp" app:layout_constraintEnd_toEndOf="parent"
-                android:textColor="@color/colorPrimary" android:textStyle="bold" android:layout_marginTop="8dp"
-                app:layout_constraintTop_toTopOf="parent"/>
-    </android.support.constraint.ConstraintLayout>
-    <android.support.constraint.ConstraintLayout
-            android:layout_width="match_parent"
             android:layout_height="218dp"
-            android:id="@+id/cardView3" android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/cardView2" app:layout_constraintStart_toStartOf="parent"
+            android:id="@+id/MemoLayout" android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/AmountLayout" app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
-            android:background="@drawable/layout_bg">
+            android:background="@drawable/layout_bg" android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/button3">
         <EditText
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -131,6 +135,6 @@
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
             android:id="@+id/button3" android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/cardView3" android:background="@color/colorPrimary"
+            app:layout_constraintTop_toBottomOf="@+id/MemoLayout" android:background="@color/colorPrimary"
             android:textColor="@android:color/white"/>
 </android.support.constraint.ConstraintLayout>
