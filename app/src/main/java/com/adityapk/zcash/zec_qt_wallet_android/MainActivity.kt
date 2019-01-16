@@ -100,7 +100,10 @@ class MainActivity : AppCompatActivity() {
             val bal = DataModel.mainResponseData?.balance ?: 0.0
             val zPrice = DataModel.mainResponseData?.zecprice ?: 0.0
 
-            balance.text = "ZEC " + DecimalFormat("#.########").format(bal)
+            val balText = DecimalFormat("#.########").format(bal)
+
+            balance.text = "ZEC " + balText.substring(0, balText.length - 4)
+            balanceSmall.text = balText.substring(balText.length - 4, balText.length)
             balanceUSD.text = "$ " + DecimalFormat("#.##").format(bal * zPrice)
         }
     }
