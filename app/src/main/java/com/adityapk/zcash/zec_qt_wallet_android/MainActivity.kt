@@ -16,7 +16,11 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import okhttp3.*
 import okio.ByteString
+import java.text.DateFormat
 import java.text.DecimalFormat
+import java.time.Instant
+import java.time.ZoneId
+import java.util.*
 
 
 class MainActivity : AppCompatActivity(), TransactionItem.OnFragmentInteractionListener {
@@ -87,8 +91,6 @@ class MainActivity : AppCompatActivity(), TransactionItem.OnFragmentInteractionL
             Toast.makeText(applicationContext, "1 ZEC = $${DecimalFormat("#.##").format(DataModel.mainResponseData?.zecprice)}", Toast.LENGTH_LONG).show()
         }
 
-        supportFragmentManager.beginTransaction().add(txList.id , TransactionItem.newInstance("a", "even"), "tag1").commit()
-        supportFragmentManager.beginTransaction().add(txList.id , TransactionItem.newInstance("c", "odd"), "tag2").commit()
     }
 
     private fun start() {
@@ -96,9 +98,8 @@ class MainActivity : AppCompatActivity(), TransactionItem.OnFragmentInteractionL
         val listener = EchoWebSocketListener()
         val ws = client?.newWebSocket(request, listener)
 
-        val cmd = json { obj("command" to "getInfo") }
-        ws?.send(cmd.toJsonString())
-
+        ws?.send(json { obj("command" to "getInfo") }.toJsonString())
+        ws?.send(json { obj("command" to "getTransactions")}.toJsonString())
     }
 
     @SuppressLint("SetTextI18n")
@@ -112,6 +113,15 @@ class MainActivity : AppCompatActivity(), TransactionItem.OnFragmentInteractionL
             balance.text = "ZEC " + balText.substring(0, balText.length - 4)
             balanceSmall.text = balText.substring(balText.length - 4, balText.length)
             balanceUSD.text = "$ " + DecimalFormat("#.##").format(bal * zPrice)
+
+            for (tx in DataModel.transactions.orEmpty()) {
+                val dt = DateFormat.getDateInstance().format(Date((tx.long("datetime") ?: 0) * 1000))
+                supportFragmentManager.beginTransaction().add(
+                    txList.id ,
+                    TransactionItem.newInstance(dt, "even"),
+                    "tag1"
+                ).commit()
+            }
         }
     }
 

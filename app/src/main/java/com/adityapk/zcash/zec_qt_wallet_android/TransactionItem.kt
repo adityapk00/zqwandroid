@@ -49,7 +49,7 @@ class TransactionItem : Fragment() {
         val view = inflater.inflate(R.layout.fragment_transaction_item, container, false)
 
         val txt = view.findViewById<TextView>(R.id.txdate)
-        txt.text = "Hello world $param1"
+        txt.text = param1
         if (param2 == "odd")
             view.findViewById<ConstraintLayout>(R.id.outlineLayout).background = null
         return view;
