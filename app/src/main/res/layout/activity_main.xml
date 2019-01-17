@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
-            app:srcCompat="@android:drawable/ic_btn_speak_now" app:backgroundTint="@color/colorPrimary"/>
+            app:srcCompat="@android:drawable/ic_btn_speak_now" app:backgroundTint="@color/colorAccent"/>
 
     <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab2"
@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
-            app:srcCompat="@android:drawable/ic_menu_camera" app:backgroundTint="@color/colorPrimary"/>
+            app:srcCompat="@android:drawable/ic_menu_camera" app:backgroundTint="@color/colorAccent"/>
 
     <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab1"
@@ -45,7 +45,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
-            app:srcCompat="@android:drawable/arrow_down_float" app:backgroundTint="@color/colorPrimary"/>
+            app:srcCompat="@android:drawable/arrow_down_float" app:backgroundTint="@color/colorAccent"/>
 
     <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab"
@@ -53,6 +53,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
-            app:srcCompat="@android:drawable/ic_menu_add" app:backgroundTint="@color/colorPrimary"/>
+            app:srcCompat="@android:drawable/ic_menu_add" app:backgroundTint="@color/colorAccent"/>
 
 </android.support.design.widget.CoordinatorLayout>

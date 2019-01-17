@@ -11,7 +11,7 @@
     <ImageView
             android:src="@color/colorPrimary"
             android:layout_width="8dp"
-            android:layout_height="0dp" android:id="@+id/imageView5" app:layout_constraintTop_toTopOf="parent"
+            android:layout_height="0dp" android:id="@+id/typeColor" app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toLeftOf="@id/txdate" app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintBaseline_toBaselineOf="parent" android:layout_marginLeft="8dp"
@@ -22,9 +22,9 @@
             android:layout_height="wrap_content"
             android:text="Date" android:id="@+id/txdate"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintLeft_toRightOf="@+id/imageView5"
+            app:layout_constraintLeft_toRightOf="@+id/typeColor"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/imageView5" android:layout_marginStart="16dp"
+            app:layout_constraintStart_toEndOf="@+id/typeColor" android:layout_marginStart="16dp"
             android:layout_marginTop="8dp" android:layout_marginBottom="8dp"
             app:layout_constraintEnd_toStartOf="@+id/txamt" android:layout_marginEnd="7dp"
     />

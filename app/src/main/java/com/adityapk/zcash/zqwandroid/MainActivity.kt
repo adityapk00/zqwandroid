@@ -15,9 +15,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import okhttp3.*
 import okio.ByteString
-import java.text.DateFormat
 import java.text.DecimalFormat
-import java.util.*
 
 
 class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInteractionListener {
@@ -82,15 +80,16 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
             }
         }
         client = OkHttpClient()
-        start()
+        makeAPICalls()
 
         balanceUSD.setOnClickListener { view ->
             Toast.makeText(applicationContext, "1 ZEC = $${DecimalFormat("#.##").format(DataModel.mainResponseData?.zecprice)}", Toast.LENGTH_LONG).show()
         }
 
+        updateUI()
     }
 
-    private fun start() {
+    private fun makeAPICalls() {
         val request = Request.Builder().url("ws://10.0.2.2:8237").build()
         val listener = EchoWebSocketListener()
         val ws = client?.newWebSocket(request, listener)
@@ -105,7 +104,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
             val bal = DataModel.mainResponseData?.balance ?: 0.0
             val zPrice = DataModel.mainResponseData?.zecprice ?: 0.0
 
-            val balText = DecimalFormat("#.########").format(bal)
+            val balText = DecimalFormat("#0.00000000").format(bal)
 
             balance.text = "ZEC " + balText.substring(0, balText.length - 4)
             balanceSmall.text = balText.substring(balText.length - 4, balText.length)

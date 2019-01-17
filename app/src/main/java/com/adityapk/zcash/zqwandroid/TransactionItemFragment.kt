@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import com.beust.klaxon.Klaxon
 import kotlinx.android.synthetic.main.fragment_transaction_item.*
@@ -56,7 +57,12 @@ class TransactionItemFragment : Fragment() {
         txt.text = DateFormat.getDateInstance().format(Date((tx?.datetime ?: 0 )* 1000))
 
         val amt = view.findViewById<TextView>(R.id.txamt)
-        amt.text = (if (tx?.type == "send") "" else "+") + tx?.amount
+        amt.text = (if (tx?.type == "send") "" else "+") + tx?.amount + " ZEC"
+
+        if (tx?.type == "send") {
+            val col = view.findViewById<ImageView>(R.id.typeColor)
+            col.setImageResource(R.color.colorAccent)
+        }
 
         if (param2 == "odd")
             view.findViewById<ConstraintLayout>(R.id.outlineLayout).background = null
