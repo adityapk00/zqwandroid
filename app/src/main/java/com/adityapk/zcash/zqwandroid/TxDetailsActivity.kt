@@ -40,8 +40,7 @@ class TxDetailsActivity : AppCompatActivity() {
         val amt = kotlin.math.abs(tx?.amount?.toDoubleOrNull() ?: 0.0)
         val amtStr = DecimalFormat("#0.00000000").format(amt)
 
-        txtAmtZec.text = "ZEC " + amtStr.substring(0, amtStr.length - 4)
-        txtAmtZecSmall.text = amtStr.substring(amtStr.length - 4, amtStr.length)
+        txtAmtZec.text = "ZEC $amtStr"
         txtAmtUSD.text = "$ " + DecimalFormat("#0.00").format(
             (amt) * (DataModel.mainResponseData?.zecprice ?: 0.0))
 
