@@ -65,11 +65,13 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         fab1.setOnClickListener {view ->
             val intent = Intent(this, ReceiveActivity::class.java)
             startActivity(intent)
+            closeFABMenu()
         }
 
         fab2.setOnClickListener {view ->
             val intent = Intent(this, SendActivity::class.java)
             startActivity(intent)
+            closeFABMenu()
         }
 
         fab.setOnClickListener { view ->
@@ -87,6 +89,14 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         }
 
         updateUI()
+    }
+
+    override fun onPause() {
+        super.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
     }
 
     private fun makeAPICalls() {
