@@ -10,6 +10,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.beust.klaxon.Klaxon
+import kotlinx.android.synthetic.main.fragment_transaction_item.*
+import java.text.DateFormat
+import java.util.*
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -20,27 +24,27 @@ private const val ARG_PARAM2 = "param2"
 /**
  * A simple [Fragment] subclass.
  * Activities that contain this fragment must implement the
- * [TransactionItem.OnFragmentInteractionListener] interface
+ * [TransactionItemFragment.OnFragmentInteractionListener] interface
  * to handle interaction events.
- * Use the [TransactionItem.newInstance] factory method to
+ * Use the [TransactionItemFragment.newInstance] factory method to
  * create an instance of this fragment.
  *
  */
-class TransactionItem : Fragment() {
+class TransactionItemFragment : Fragment() {
     // TODO: Rename and change types of parameters
-    private var param1: String? = null
     private var param2: String? = null
+    private var tx: DataModel.TransactionItem? = null
     private var listener: OnFragmentInteractionListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
+            tx = Klaxon().parse(it.getString(ARG_PARAM1))
             param2 = it.getString(ARG_PARAM2)
         }
-
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -49,10 +53,14 @@ class TransactionItem : Fragment() {
         val view = inflater.inflate(R.layout.fragment_transaction_item, container, false)
 
         val txt = view.findViewById<TextView>(R.id.txdate)
-        txt.text = param1
+        txt.text = DateFormat.getDateInstance().format(Date((tx?.datetime ?: 0 )* 1000))
+
+        val amt = view.findViewById<TextView>(R.id.txamt)
+        amt.text = (if (tx?.type == "send") "" else "+") + tx?.amount
+
         if (param2 == "odd")
             view.findViewById<ConstraintLayout>(R.id.outlineLayout).background = null
-        return view;
+        return view
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -97,13 +105,13 @@ class TransactionItem : Fragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @return A new instance of fragment TransactionItem.
+         * @return A new instance of fragment TransactionItemFragment.
          */
         // TODO: Rename and change types and number of parameters
         @SuppressLint("SetTextI18n")
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-            TransactionItem().apply {
+            TransactionItemFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)

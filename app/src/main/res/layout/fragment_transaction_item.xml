@@ -4,7 +4,7 @@
                                              xmlns:tools="http://schemas.android.com/tools"
                                              android:layout_width="match_parent"
                                              android:layout_height="wrap_content"
-                                             tools:context=".TransactionItem" android:id="@+id/outlineLayout"
+                                             tools:context=".TransactionItemFragment" android:id="@+id/outlineLayout"
                                              android:background="@color/light_grey">
 
     <!-- TODO: Update blank fragment layout -->
@@ -20,13 +20,14 @@
     <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/hello_blank_fragment" android:id="@+id/txdate"
+            android:text="Date" android:id="@+id/txdate"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toRightOf="@+id/imageView5"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/imageView5" android:layout_marginStart="16dp"
             android:layout_marginTop="8dp" android:layout_marginBottom="8dp"
-            app:layout_constraintEnd_toStartOf="@+id/txamt" android:layout_marginEnd="7dp"/>
+            app:layout_constraintEnd_toStartOf="@+id/txamt" android:layout_marginEnd="7dp"
+    />
     <TextView
             android:text="Amt"
             android:layout_width="0dp"

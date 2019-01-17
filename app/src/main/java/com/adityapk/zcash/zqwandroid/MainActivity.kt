@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import com.beust.klaxon.Klaxon
 import com.beust.klaxon.json
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
@@ -19,7 +20,7 @@ import java.text.DecimalFormat
 import java.util.*
 
 
-class MainActivity : AppCompatActivity(), TransactionItem.OnFragmentInteractionListener {
+class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInteractionListener {
     override fun onFragmentInteraction(uri: Uri) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
@@ -110,14 +111,18 @@ class MainActivity : AppCompatActivity(), TransactionItem.OnFragmentInteractionL
             balanceSmall.text = balText.substring(balText.length - 4, balText.length)
             balanceUSD.text = "$ " + DecimalFormat("#.##").format(bal * zPrice)
 
+            txList.removeAllViewsInLayout()
+            val fragTx = supportFragmentManager.beginTransaction()
+            var oddeven = "odd"
             for (tx in DataModel.transactions.orEmpty()) {
-                val dt = DateFormat.getDateInstance().format(Date((tx.long("datetime") ?: 0) * 1000))
-                supportFragmentManager.beginTransaction().add(
+                fragTx.add(
                     txList.id ,
-                    TransactionItem.newInstance(dt, "even"),
+                    TransactionItemFragment.newInstance(Klaxon().toJsonString(tx), oddeven),
                     "tag1"
-                ).commit()
+                )
+                oddeven = if (oddeven == "odd") "even" else "odd"
             }
+            fragTx.commit()
         }
     }
 
