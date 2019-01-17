@@ -109,7 +109,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
 
             balance.text = "ZEC " + balText.substring(0, balText.length - 4)
             balanceSmall.text = balText.substring(balText.length - 4, balText.length)
-            balanceUSD.text = "$ " + DecimalFormat("#.##").format(bal * zPrice)
+            balanceUSD.text = "$ " + DecimalFormat("#0.00").format(bal * zPrice)
 
             txList.removeAllViewsInLayout()
             val fragTx = supportFragmentManager.beginTransaction()

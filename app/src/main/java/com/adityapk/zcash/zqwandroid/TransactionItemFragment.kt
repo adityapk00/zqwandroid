@@ -57,6 +57,7 @@ class TransactionItemFragment : Fragment() {
 
         view.findViewById<ConstraintLayout>(R.id.outlineLayout).setOnClickListener { v ->
             val intent = Intent(activity, TxDetailsActivity::class.java)
+            intent.putExtra("EXTRA_TXDETAILS", Klaxon().toJsonString(tx))
             startActivity(intent)
         }
 
