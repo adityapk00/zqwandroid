@@ -1,4 +1,4 @@
-package com.adityapk.zcash.zec_qt_wallet_android
+package com.adityapk.zcash.zqwandroid
 
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getTargetContext()
-        assertEquals("com.adityapk.zcash.zec_qt_wallet_android", appContext.packageName)
+        assertEquals("com.adityapk.zcash.zqwandroid", appContext.packageName)
     }
 }

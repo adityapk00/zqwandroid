@@ -1,15 +1,13 @@
-package com.adityapk.zcash.zec_qt_wallet_android
+package com.adityapk.zcash.zqwandroid
 
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.design.widget.FloatingActionButton
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.TextView
 import android.widget.Toast
 import com.beust.klaxon.json
 import kotlinx.android.synthetic.main.activity_main.*
@@ -18,8 +16,6 @@ import okhttp3.*
 import okio.ByteString
 import java.text.DateFormat
 import java.text.DecimalFormat
-import java.time.Instant
-import java.time.ZoneId
 import java.util.*
 
 

@@ -1,4 +1,4 @@
-package com.adityapk.zcash.zec_qt_wallet_android
+package com.adityapk.zcash.zqwandroid
 
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
