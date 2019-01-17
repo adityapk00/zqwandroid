@@ -27,7 +27,7 @@
                 android:layout_height="wrap_content" android:id="@+id/txtType"
                 android:layout_marginStart="16dp" app:layout_constraintStart_toEndOf="@+id/imgTypeColor"
                 android:textSize="24sp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="8dp"
                 app:layout_constraintTop_toTopOf="parent" app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginEnd="16dp" android:layout_marginBottom="2dp"
                 app:layout_constraintBottom_toTopOf="@+id/txtDateTime"/>
@@ -45,8 +45,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" android:layout_marginTop="24dp"
             app:layout_constraintTop_toBottomOf="@+id/constraintLayout" android:id="@+id/constraintLayout2"
-            android:background="@color/light_grey" app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" android:layout_marginStart="8dp" android:layout_marginEnd="8dp"
+            android:background="@drawable/layout_bg" app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
     >
 
         <TextView
@@ -63,16 +63,18 @@
                 app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@+id/textView5"
                 android:layout_marginTop="8dp" android:layout_marginStart="8dp" android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
-                android:textAlignment="center" android:singleLine="true" android:ellipsize="middle"/>
+                android:textAlignment="center" android:singleLine="true" android:ellipsize="middle"
+                android:layout_marginBottom="8dp" app:layout_constraintBottom_toTopOf="@+id/txtAmtZec"/>
         <TextView
                 android:text="ZEC 2.1234"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" android:id="@+id/txtAmtZec"
-                app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
-                android:layout_marginTop="20dp"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginTop="8dp"
                 app:layout_constraintTop_toBottomOf="@+id/txtAddress" android:textSize="24sp"
                 android:textAlignment="center"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                app:layout_constraintEnd_toEndOf="parent" android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toTopOf="@+id/txtAmtUSD" android:layout_marginEnd="32dp"/>
         <TextView
                 android:text="$ 45.23"
                 android:layout_width="0dp"
@@ -81,7 +83,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/txtAmtZec" app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginEnd="8dp" android:textSize="18sp" android:textAlignment="center"
-                app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="8dp"/>
+                app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="16dp"/>
         <TextView
                 android:text="0000"
                 android:layout_width="0dp"
@@ -120,12 +122,13 @@
     </android.support.constraint.ConstraintLayout>
     <Button
             android:text="View on Block Explorer"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:id="@+id/btnExternal"
             android:layout_marginTop="24dp"
             app:layout_constraintTop_toBottomOf="@+id/layoutMemo" app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginBottom="8dp" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginEnd="8dp" app:layout_constraintVertical_bias="0.0"
-            android:background="@color/colorAccent" android:textColor="@android:color/white"/>
+            android:background="@color/colorAccent" android:textColor="@android:color/white"
+            android:paddingLeft="10dp" android:paddingRight="10dp"/>
 </android.support.constraint.ConstraintLayout>

@@ -35,7 +35,7 @@ class TxDetailsActivity : AppCompatActivity() {
         txtType.text = tx?.type?.capitalize()
         txtDateTime.text = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM)
                                      .format(Date((tx?.datetime ?: 0) * 1000))
-        txtAddress.text = if (tx?.addr.isNullOrBlank()) "(Shielded)" else tx?.addr
+        txtAddress.text = if (tx?.addr.isNullOrBlank()) "(Shielded Address)" else tx?.addr
 
         val amt = kotlin.math.abs(tx?.amount?.toDoubleOrNull() ?: 0.0)
         val amtStr = DecimalFormat("#0.00000000").format(amt)

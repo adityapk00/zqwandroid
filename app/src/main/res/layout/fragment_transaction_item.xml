@@ -27,7 +27,7 @@
             app:layout_constraintStart_toEndOf="@+id/typeColor" android:layout_marginStart="16dp"
             android:layout_marginTop="8dp" android:layout_marginBottom="8dp"
             app:layout_constraintEnd_toStartOf="@+id/txamt" android:layout_marginEnd="7dp"
-    />
+            android:fontFamily="monospace"/>
     <TextView
             android:text="Amt"
             android:layout_width="0dp"
@@ -35,6 +35,6 @@
             android:layout_marginStart="8dp" app:layout_constraintStart_toEndOf="@+id/txdate"
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp" android:layout_marginTop="8dp"
             app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
-            android:textAlignment="textEnd" android:layout_marginBottom="8dp"/>
+            android:textAlignment="textEnd" android:layout_marginBottom="8dp" android:fontFamily="monospace"/>
 
 </android.support.constraint.ConstraintLayout>

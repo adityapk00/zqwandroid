@@ -15,6 +15,7 @@ import android.widget.TextView
 import com.beust.klaxon.Klaxon
 import kotlinx.android.synthetic.main.fragment_transaction_item.*
 import java.text.DateFormat
+import java.text.DecimalFormat
 import java.util.*
 
 
@@ -65,7 +66,8 @@ class TransactionItemFragment : Fragment() {
         txt.text = DateFormat.getDateInstance().format(Date((tx?.datetime ?: 0 )* 1000))
 
         val amt = view.findViewById<TextView>(R.id.txamt)
-        amt.text = (if (tx?.type == "send") "" else "+") + tx?.amount + " ZEC"
+        val amtzec = tx?.amount?.toDoubleOrNull() ?: 0.0
+        amt.text = (if (tx?.type == "send") "" else "+") + DecimalFormat("#0.00########").format(amtzec) + " ZEC"
 
         if (tx?.type == "send") {
             val col = view.findViewById<ImageView>(R.id.typeColor)
