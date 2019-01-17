@@ -24,7 +24,6 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
     }
 
     private inner class EchoWebSocketListener : WebSocketListener() {
-
         private val NORMAL_CLOSURE_STATUS = 1000
         private val TAG = "MainActivity";
 
@@ -89,14 +88,6 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         }
 
         updateUI()
-    }
-
-    override fun onPause() {
-        super.onPause()
-    }
-
-    override fun onResume() {
-        super.onResume()
     }
 
     private fun makeAPICalls() {
