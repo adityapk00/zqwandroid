@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        title = "Total Balance"
+        title = "Zec QT Wallet - Connected"
 
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)

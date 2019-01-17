@@ -27,6 +27,8 @@ class TxDetailsActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        title = "Tx Details"
+
         tx = Klaxon().parse(StringReader(intent.getStringExtra("EXTRA_TXDETAILS")))
 
         if (tx?.type == "send")
@@ -38,7 +40,7 @@ class TxDetailsActivity : AppCompatActivity() {
         txtAddress.text = if (tx?.addr.isNullOrBlank()) "(Shielded Address)" else tx?.addr
 
         val amt = kotlin.math.abs(tx?.amount?.toDoubleOrNull() ?: 0.0)
-        val amtStr = DecimalFormat("#0.00000000").format(amt)
+        val amtStr = DecimalFormat("#0.0000####").format(amt)
 
         txtAmtZec.text = "ZEC $amtStr"
         txtAmtUSD.text = "$ " + DecimalFormat("#0.00").format(
