@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.adityapk.zcash.zqwandroid">
 
+    <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
@@ -12,6 +13,16 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             android:usesCleartextTraffic="true">
+        <activity android:name=".QrReaderActivity">
+        </activity>
+        <activity
+                android:name=".QrCodeReaderActivity"
+                android:label="@string/title_activity_qr_code_reader"
+                android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="com.adityapk.zcash.zqwandroid.SendActivity"/>
+        </activity>
         <activity
                 android:name=".TxDetailsActivity"
                 android:label="@string/title_activity_tx_details"
@@ -56,6 +67,7 @@
         <activity
                 android:name=".SendActivity"
                 android:label="@string/title_activity_send"
+                android:launchMode="singleTop"
                 android:parentActivityName=".MainActivity"
                 android:screenOrientation="portrait"
                 android:theme="@style/AppTheme.NoActionBar">
