@@ -57,11 +57,9 @@ class SendActivity : AppCompatActivity() {
         })
 
         amountUSD.addTextChangedListener (object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
-            override fun afterTextChanged(s: Editable?) {
-            }
+            override fun afterTextChanged(s: Editable?) {}
 
             @SuppressLint("SetTextI18n")
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -79,7 +77,7 @@ class SendActivity : AppCompatActivity() {
             val amt = amountZEC.text.toString()
             val parsedAmt = amt.substring("ZEC ".length, amt.length)
             val tx = DataModel.TransactionItem("confirm", 0, parsedAmt,
-                txtSendMemo.text.toString(), sendAddress.text.toString(), "")
+                txtSendMemo.text.toString(), sendAddress.text.toString(), "", 0)
             intent.putExtra("EXTRA_TXDETAILS", Klaxon().toJsonString(tx))
             startActivityForResult(intent, REQUEST_CONFIRM)
         }

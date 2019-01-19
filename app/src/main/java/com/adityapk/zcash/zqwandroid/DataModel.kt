@@ -7,7 +7,7 @@ import com.beust.klaxon.Parser
 object DataModel {
     class MainResponse(val balance: Double, val saplingAddress: String, val zecprice: Double)
     class TransactionItem(val type: String, val datetime: Long, val amount: String, val memo: String?,
-                          val addr: String, val txid: String?)
+                          val addr: String, val txid: String?, val confirmations: Long)
 
     var mainResponseData : MainResponse? = null
     var transactions : List<TransactionItem> ?= null
@@ -24,7 +24,8 @@ object DataModel {
                         tx.string("amount") ?: "0",
                         tx.string("memo") ?: "",
                         tx.string("address") ?: "",
-                        tx.string("txid") ?: "")
+                        tx.string("txid") ?: "",
+                        tx.long("confirmations") ?: 0)
                 }
             }
         }
