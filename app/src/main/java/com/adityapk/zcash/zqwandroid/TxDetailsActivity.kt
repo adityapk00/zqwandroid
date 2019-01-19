@@ -40,7 +40,7 @@ class TxDetailsActivity : AppCompatActivity() {
             txtDateTime.text = ""
             btnExternal.text = "Confirm and Send"
         } else {
-            txtType.text = tx?.type?.capitalize()
+            txtType.text = tx?.type?.capitalize() + if (tx?.confirmations == 0L) " (Unconfirmed Tx)" else ""
             txtDateTime.text = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM)
                 .format(Date((tx?.datetime ?: 0) * 1000))
         }

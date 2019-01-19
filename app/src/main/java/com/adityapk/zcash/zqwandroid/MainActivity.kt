@@ -2,12 +2,16 @@ package com.adityapk.zcash.zqwandroid
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
+import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.Toast
 import com.beust.klaxon.Klaxon
 import com.beust.klaxon.json
@@ -16,9 +20,12 @@ import kotlinx.android.synthetic.main.content_main.*
 import okhttp3.*
 import okio.ByteString
 import java.text.DecimalFormat
+import android.widget.TextView
 
 
-class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInteractionListener {
+
+
+class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInteractionListener , UnconfirmedTxItemFragment.OnFragmentInteractionListener{
     override fun onFragmentInteraction(uri: Uri) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
@@ -111,10 +118,55 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
             balanceSmall.text = balText.substring(balText.length - 4, balText.length)
             balanceUSD.text = "$ " + DecimalFormat("#,##0.00").format(bal * zPrice)
 
-            txList.removeAllViewsInLayout()
+            addPastTransactions(DataModel.transactions)
+        }
+    }
+
+    private fun addPastTransactions(txns: List<DataModel.TransactionItem>?) {
+        txList.removeAllViewsInLayout()
+
+        // If there are no transactions, just return (don't add any headers either)
+        if (txns.isNullOrEmpty())
+            return
+
+        val addTitle = fun(title: String) {
+            // Add the "Past Transactions" TextView
+            val tv = TextView(this)
+            tv.text = title
+            val params = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            params.setMargins(16, 16, 16, 16)
+            tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
+            tv.layoutParams = params
+            tv.setTypeface(null, Typeface.BOLD)
+            txList.addView(tv)
+        }
+
+        // Split all the transactions into confirmations = 0 and confirmations > 0
+        // Unconfirmed first
+        val unconfirmed = txns.filter { t -> t.confirmations == 0L }
+        if (unconfirmed.isNotEmpty()) {
+            //addTitle("Recent Transactions")
             val fragTx = supportFragmentManager.beginTransaction()
+
+            for (tx in unconfirmed) {
+                fragTx.add(
+                    txList.id ,
+                    UnconfirmedTxItemFragment.newInstance(Klaxon().toJsonString(tx), ""),
+                    "tag1"
+                )
+            }
+            fragTx.commit()
+        }
+
+        // Add all confirmed transactions
+        val confirmed = txns.filter { t -> t.confirmations > 0L }
+        if (confirmed.isNotEmpty()) {
+            addTitle("Recent Transactions")
+            val fragTx = supportFragmentManager.beginTransaction()
+
             var oddeven = "odd"
-            for (tx in DataModel.transactions.orEmpty()) {
+            for (tx in confirmed) {
                 fragTx.add(
                     txList.id ,
                     TransactionItemFragment.newInstance(Klaxon().toJsonString(tx), oddeven),

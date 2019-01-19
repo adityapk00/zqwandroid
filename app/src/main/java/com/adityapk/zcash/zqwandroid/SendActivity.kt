@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.text.Editable
+import android.text.InputType
 import android.text.TextWatcher
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
@@ -16,9 +17,6 @@ import com.beust.klaxon.Klaxon
 import kotlinx.android.synthetic.main.activity_send.*
 import kotlinx.android.synthetic.main.content_send.*
 import java.text.DecimalFormat
-import android.content.DialogInterface
-import android.content.DialogInterface.BUTTON_NEUTRAL
-import android.text.InputType
 
 
 class SendActivity : AppCompatActivity() {
