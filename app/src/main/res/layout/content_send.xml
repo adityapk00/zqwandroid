@@ -51,12 +51,13 @@
                 android:layout_marginEnd="8dp"/>
         <TextView
                 android:text="Valid Address"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/txtValidAddress" android:layout_marginEnd="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:textColor="@color/colorPrimary" android:textStyle="bold" android:layout_marginTop="8dp"
-                app:layout_constraintTop_toTopOf="parent"/>
+                android:textColor="@color/colorPrimary" android:layout_marginTop="8dp"
+                app:layout_constraintTop_toTopOf="parent" app:layout_constraintBaseline_toBaselineOf="@+id/textView7"
+                android:textAlignment="textEnd"/>
     </android.support.constraint.ConstraintLayout>
     <android.support.constraint.ConstraintLayout
             android:layout_width="0dp"
@@ -74,7 +75,7 @@
                 app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
                 android:textSize="36sp"
                 app:layout_constraintBottom_toTopOf="@+id/amountZEC"
-                android:layout_marginTop="16dp" android:textColor="@android:color/black" android:hint="0.00"
+                android:layout_marginTop="16dp" android:hint="0.00"
                 android:textAlignment="center" android:singleLine="true" android:selectAllOnFocus="true"
                 android:inputType="numberDecimal" android:maxLength="14"/>
         <TextView

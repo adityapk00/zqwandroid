@@ -29,6 +29,9 @@ class SendActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        // Clear the valid address prompt
+        txtValidAddress.text = ""
+
         imageButton.setOnClickListener { view ->
             val intent = Intent(this, QrReaderActivity::class.java)
             startActivityForResult(intent, 1)
@@ -44,7 +47,7 @@ class SendActivity : AppCompatActivity() {
             @SuppressLint("SetTextI18n")
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 if (isValidAddress(s.toString())) {
-                    txtValidAddress.text = "Valid address"
+                    txtValidAddress.text = "\u2713 Valid address"
                     txtValidAddress.setTextColor(ContextCompat.getColor(applicationContext, R.color.colorPrimary))
                 } else {
                     txtValidAddress.text = "Not a valid address"
