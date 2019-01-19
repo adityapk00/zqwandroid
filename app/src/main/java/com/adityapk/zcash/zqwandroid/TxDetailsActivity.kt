@@ -1,6 +1,7 @@
 package com.adityapk.zcash.zqwandroid
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.beust.klaxon.Klaxon
@@ -27,16 +28,23 @@ class TxDetailsActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        title = "Tx Details"
+        title = "Transaction Details"
 
         tx = Klaxon().parse(StringReader(intent.getStringExtra("EXTRA_TXDETAILS")))
 
         if (tx?.type == "send")
             imgTypeColor.setImageResource(R.color.colorAccent)
 
-        txtType.text = tx?.type?.capitalize()
-        txtDateTime.text = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM)
-                                     .format(Date((tx?.datetime ?: 0) * 1000))
+        if (tx?.type == "confirm") {
+            txtType.text = "Confirm Transaction"
+            txtDateTime.text = ""
+            btnExternal.text = "Confirm and Send"
+        } else {
+            txtType.text = tx?.type?.capitalize()
+            txtDateTime.text = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM)
+                .format(Date((tx?.datetime ?: 0) * 1000))
+        }
+
         txtAddress.text = if (tx?.addr.isNullOrBlank()) "(Shielded Address)" else tx?.addr
 
         val amt = kotlin.math.abs(tx?.amount?.toDoubleOrNull() ?: 0.0)
@@ -53,10 +61,43 @@ class TxDetailsActivity : AppCompatActivity() {
         }
 
         btnExternal.setOnClickListener { v ->
-            val browserIntent = Intent(Intent.ACTION_VIEW,
-                Uri.parse("https://explorer.zcha.in/transactions/${tx?.txid}"))
-            startActivity(browserIntent)
+            if (tx?.type == "confirm") {
+                setResult(Activity.RESULT_OK)
+                finish()
+            } else {
+                val browserIntent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://explorer.zcha.in/transactions/${tx?.txid}")
+                )
+                startActivity(browserIntent)
+            }
         }
     }
 
+    override fun getSupportParentActivityIntent(): Intent? {
+        return getParentActivityIntentImpl()
+    }
+
+    override fun getParentActivityIntent(): Intent? {
+        return getParentActivityIntentImpl()
+    }
+
+    private fun getParentActivityIntentImpl(): Intent {
+        var i: Intent? = null
+
+        // Here you need to do some logic to determine from which Activity you came.
+        // example: you could pass a variable through your Intent extras and check that.
+        if (tx?.type == "confirm") {
+            i = Intent(this, SendActivity::class.java)
+            // set any flags or extras that you need.
+            // If you are reusing the previous Activity (i.e. bringing it to the top
+            // without re-creating a new instance) set these flags:
+            i.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        } else {
+            i = Intent(this, MainActivity::class.java)
+            i.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+
+        return i
+    }
 }

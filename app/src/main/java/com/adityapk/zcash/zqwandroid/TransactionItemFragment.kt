@@ -67,7 +67,7 @@ class TransactionItemFragment : Fragment() {
 
         val amt = view.findViewById<TextView>(R.id.txamt)
         val amtzec = tx?.amount?.toDoubleOrNull() ?: 0.0
-        amt.text = (if (tx?.type == "send") "" else "+") + DecimalFormat("#0.00########").format(amtzec) + " ZEC"
+        amt.text = "ZEC " + (if (tx?.type == "send") "" else "+") + DecimalFormat("#0.00########").format(amtzec)
 
         if (tx?.type == "send") {
             val col = view.findViewById<ImageView>(R.id.typeColor)
