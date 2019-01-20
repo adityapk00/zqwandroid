@@ -95,11 +95,15 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
             return
         }
 
+        // Update status to connecting, so we can update the UI
+        connStatus = ConnectionStatus.CONNECTING
+
         val client = OkHttpClient()
-        val request = Request.Builder().url(DataModel.connectionURL).build()
+        val request = Request.Builder().url(DataModel.connectionURL!!).build()
         val listener = EchoWebSocketListener()
 
         ws = client.newWebSocket(request, listener)
+        updateUI()
     }
 
     private fun makeAPICalls() {

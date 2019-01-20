@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.constraint.ConstraintLayout
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -65,13 +66,17 @@ class TransactionItemFragment : Fragment() {
         val txt = view.findViewById<TextView>(R.id.txdate)
         txt.text = DateFormat.getDateInstance().format(Date((tx?.datetime ?: 0 )* 1000))
 
+        val col = view.findViewById<ImageView>(R.id.typeColor)
         val amt = view.findViewById<TextView>(R.id.txamt)
         val amtzec = tx?.amount?.toDoubleOrNull() ?: 0.0
         amt.text = "ZEC " + (if (tx?.type == "send") "" else "+") + DecimalFormat("#0.00########").format(amtzec)
 
         if (tx?.type == "send") {
-            val col = view.findViewById<ImageView>(R.id.typeColor)
             col.setImageResource(R.color.colorAccent)
+            amt.setTextColor(ContextCompat.getColor(view.context, R.color.colorAccent))
+        } else {
+            col.setImageResource(R.color.colorPrimary)
+            amt.setTextColor(ContextCompat.getColor(view.context, R.color.colorPrimary))
         }
 
         if (param2 == "odd")
