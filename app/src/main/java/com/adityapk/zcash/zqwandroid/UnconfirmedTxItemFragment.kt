@@ -62,7 +62,7 @@ class UnconfirmedTxItemFragment : Fragment() {
         val txt = view.findViewById<TextView>(R.id.txtUnconfirmedTx)
         txt.text = (if (tx?.type == "send") "Sending" else "Receiving") +
                     " ZEC " + (if (tx?.type == "send") "" else "+") +
-                    DecimalFormat("#0.00########").format(tx?.amount?.toDoubleOrNull() ?: 0.0)
+                    DecimalFormat("#0.00########").format(kotlin.math.abs(tx?.amount?.toDoubleOrNull() ?: 0.0))
 
         return view
     }

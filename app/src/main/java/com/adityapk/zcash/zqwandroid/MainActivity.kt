@@ -5,13 +5,14 @@ import android.content.Intent
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
+import android.support.constraint.ConstraintLayout
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
-import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.Toast
 import com.beust.klaxon.Klaxon
 import com.beust.klaxon.json
@@ -30,43 +31,16 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    private inner class EchoWebSocketListener : WebSocketListener() {
-        private val NORMAL_CLOSURE_STATUS = 1000
-        private val TAG = "MainActivity";
-
-        override fun onOpen(webSocket: WebSocket, response: Response) {
-            Log.d(TAG, "Opened Websocket")
-        }
-
-        override fun onMessage(webSocket: WebSocket?, text: String?) {
-            DataModel.parseResponse(text!!)
-            updateUI()
-            Log.i(TAG, "Recieving $text")
-        }
-
-        override fun onMessage(webSocket: WebSocket?, bytes: ByteString) {
-            Log.i(TAG, "Receiving bytes : " + bytes.hex())
-        }
-
-        override fun onClosing(webSocket: WebSocket, code: Int, reason: String?) {
-            webSocket.close(NORMAL_CLOSURE_STATUS, null)
-            Log.i(TAG,"Closing : $code / $reason")
-        }
-
-        override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-            Log.e(TAG,"Failed $t")
-        }
-    }
-
-    var client: OkHttpClient? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        title = "Zec QT Wallet - Connected"
+        title = "Zec QT Wallet"
 
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+
+        // When creating, clear all the data first
+        setMainStatus("")
 
         fab1.setOnClickListener {view ->
             val intent = Intent(this, ReceiveActivity::class.java)
@@ -74,51 +48,106 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
             closeFABMenu()
         }
 
-        fab2.setOnClickListener {view ->
+        fab2.setOnClickListener {
             val intent = Intent(this, SendActivity::class.java)
             startActivity(intent)
             closeFABMenu()
         }
 
-        fab.setOnClickListener { view ->
-            if(!isFABOpen){
-                showFABMenu()
-            } else {
-                closeFABMenu()
-            }
+        fab.setOnClickListener {
+            if(!isFABOpen){ showFABMenu() } else { closeFABMenu() }
         }
-        client = OkHttpClient()
+
+        btnConnect.setOnClickListener {
+            DataModel.connectionURL = "ws://10.0.2.2:8237"
+            makeConnection()
+            makeAPICalls()
+        }
+
+        makeConnection()
         makeAPICalls()
 
-        balanceUSD.setOnClickListener { view ->
-            Toast.makeText(applicationContext, "1 ZEC = $${DecimalFormat("#.##").format(DataModel.mainResponseData?.zecprice)}", Toast.LENGTH_LONG).show()
+        txtMainBalanceUSD.setOnClickListener {
+            Toast.makeText(applicationContext, "1 ZEC = $${DecimalFormat("#.##")
+                .format(DataModel.mainResponseData?.zecprice)}", Toast.LENGTH_LONG).show()
         }
 
         updateUI()
     }
 
-    private fun makeAPICalls() {
-        val request = Request.Builder().url("ws://10.0.2.2:8237").build()
-        val listener = EchoWebSocketListener()
-        val ws = client?.newWebSocket(request, listener)
+    private var ws : WebSocket? = null
 
+    enum class ConnectionStatus(val status: Int) {
+        DISCONNECTED(1),
+        CONNECTING(2),
+        CONNECTED(3)
+    }
+    private var connStatus: ConnectionStatus = ConnectionStatus.DISCONNECTED
+
+    // Attempt a connection to the server. If there is no saved connection, we'll set the connection status
+    // to None
+    private fun makeConnection() {
+        if (connStatus == ConnectionStatus.CONNECTED || connStatus == ConnectionStatus.CONNECTING) {
+            return
+        }
+
+        if (DataModel.connectionURL.isNullOrBlank()) {
+            return
+        }
+
+        val client = OkHttpClient()
+        val request = Request.Builder().url(DataModel.connectionURL).build()
+        val listener = EchoWebSocketListener()
+
+        ws = client.newWebSocket(request, listener)
+    }
+
+    private fun makeAPICalls() {
         ws?.send(json { obj("command" to "getInfo") }.toJsonString())
         ws?.send(json { obj("command" to "getTransactions")}.toJsonString())
+    }
+
+    private fun setMainStatus(status: String) {
+        lblBalance.text = ""
+        txtMainBalanceUSD.text = ""
+        txtMainBalance.text = status
+        balanceSmall.text = ""
     }
 
     @SuppressLint("SetTextI18n")
     private fun updateUI() {
         runOnUiThread {
-            val bal = DataModel.mainResponseData?.balance ?: 0.0
-            val zPrice = DataModel.mainResponseData?.zecprice ?: 0.0
+            when (connStatus) {
+                ConnectionStatus.DISCONNECTED -> {
+                    setMainStatus("No Connection")
+                    scrollViewTxns.visibility = ScrollView.GONE
+                    layoutConnect.visibility = ConstraintLayout.VISIBLE
+                }
+                ConnectionStatus.CONNECTING -> {
+                    setMainStatus("Connecting...")
+                    scrollViewTxns.visibility = ScrollView.VISIBLE
+                    layoutConnect.visibility = ConstraintLayout.GONE
+                }
+                ConnectionStatus.CONNECTED -> {
+                    scrollViewTxns.visibility = ScrollView.VISIBLE
+                    layoutConnect.visibility = ConstraintLayout.GONE
+                    if (DataModel.mainResponseData == null) {
+                        setMainStatus("Loading...")
+                    } else {
+                        val bal = DataModel.mainResponseData?.balance ?: 0.0
+                        val zPrice = DataModel.mainResponseData?.zecprice ?: 0.0
 
-            val balText = DecimalFormat("#0.00000000").format(bal)
+                        val balText = DecimalFormat("#0.00000000").format(bal)
 
-            balance.text = "ZEC " + balText.substring(0, balText.length - 4)
-            balanceSmall.text = balText.substring(balText.length - 4, balText.length)
-            balanceUSD.text = "$ " + DecimalFormat("#,##0.00").format(bal * zPrice)
+                        lblBalance.text = "Balance"
+                        txtMainBalance.text = "ZEC " + balText.substring(0, balText.length - 4)
+                        balanceSmall.text = balText.substring(balText.length - 4, balText.length)
+                        txtMainBalanceUSD.text = "$ " + DecimalFormat("#,##0.00").format(bal * zPrice)
 
-            addPastTransactions(DataModel.transactions)
+                        addPastTransactions(DataModel.transactions)
+                    }
+                }
+            }
         }
     }
 
@@ -209,4 +238,42 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
             else -> super.onOptionsItemSelected(item)
         }
     }
+
+    private fun disconnected() {
+        connStatus = ConnectionStatus.DISCONNECTED
+        DataModel.clear()
+        updateUI()
+    }
+
+    private inner class EchoWebSocketListener : WebSocketListener() {
+        private val NORMAL_CLOSURE_STATUS = 1000
+        private val TAG = "MainActivity"
+
+        override fun onOpen(webSocket: WebSocket, response: Response) {
+            Log.d(TAG, "Opened Websocket")
+            connStatus = ConnectionStatus.CONNECTED
+        }
+
+        override fun onMessage(webSocket: WebSocket?, text: String?) {
+            DataModel.parseResponse(text!!)
+            updateUI()
+            Log.i(TAG, "Recieving $text")
+        }
+
+        override fun onMessage(webSocket: WebSocket?, bytes: ByteString) {
+            Log.i(TAG, "Receiving bytes : " + bytes.hex())
+        }
+
+        override fun onClosing(webSocket: WebSocket, code: Int, reason: String?) {
+            webSocket.close(NORMAL_CLOSURE_STATUS, null)
+            Log.i(TAG,"Closing : $code / $reason")
+            disconnected()
+        }
+
+        override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
+            Log.e(TAG,"Failed $t")
+            disconnected()
+        }
+    }
+
 }

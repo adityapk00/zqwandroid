@@ -12,6 +12,11 @@ object DataModel {
     var mainResponseData : MainResponse? = null
     var transactions : List<TransactionItem> ?= null
 
+    fun clear() {
+        mainResponseData = null
+        transactions = null
+    }
+
     fun parseResponse(response: String) {
         val json = Parser.default().parse(StringBuilder(response)) as JsonObject
         when (json.string("command")) {
@@ -31,4 +36,5 @@ object DataModel {
         }
     }
 
+    var connectionURL: String? = null
 }
