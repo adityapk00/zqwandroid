@@ -41,7 +41,7 @@ object DataModel {
         }
     }
 
-    fun setConnString(value: String, context: Context) {
+    fun setConnString(value: String?, context: Context) {
         val settings = context.getSharedPreferences("ConnInfo", 0)
         val editor = settings.edit()
         editor.putString("connstring", value)

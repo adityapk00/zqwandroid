@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".SettingsActivity">
+
+    <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" android:id="@+id/scrollView2"
+            app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toBottomOf="parent">
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                      android:orientation="vertical"
+                      android:id="@+id/linearLayout" app:layout_constraintEnd_toEndOf="parent"
+                      app:layout_constraintBottom_toTopOf="parent" app:layout_constraintTop_toTopOf="parent"
+                      app:layout_constraintStart_toStartOf="parent"/>
+        <TextView
+                android:text="Connected To 192.168.5.148"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView"
+                app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="16dp"
+                app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="16dp"/>
+        <Button
+                android:text="Disconnect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/btnDisconnect"
+                app:layout_constraintTop_toBottomOf="@+id/textView" android:layout_marginEnd="16dp"
+                app:layout_constraintEnd_toEndOf="parent"/>
+    </android.support.constraint.ConstraintLayout>
+</android.support.constraint.ConstraintLayout>

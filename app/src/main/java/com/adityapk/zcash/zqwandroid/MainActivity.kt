@@ -88,15 +88,18 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
     // Attempt a connection to the server. If there is no saved connection, we'll set the connection status
     // to None
     private fun makeConnection() {
+        val connString = DataModel.getConnString(applicationContext)
+        if (connString.isNullOrBlank()) {
+            // The user might have just disconnected, so make sure we are disconnected
+
+            ws?.close(1000, "disconnected")
+            return
+        }
+
+        // If already connected, then nothing else is to be done.
         if (connStatus == ConnectionStatus.CONNECTED || connStatus == ConnectionStatus.CONNECTING) {
             return
         }
-
-        val connString = DataModel.getConnString(applicationContext)
-        if (connString.isNullOrBlank()) {
-            return
-        }
-
 
         // Update status to connecting, so we can update the UI
         connStatus = ConnectionStatus.CONNECTING
@@ -106,6 +109,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         val listener = EchoWebSocketListener()
 
         ws = client.newWebSocket(request, listener)
+
         updateUI()
     }
 
@@ -241,9 +245,19 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_settings -> {
+                val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
+                return true
+            }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onResume() {
+        makeConnection()
+        makeAPICalls()
+        super.onResume()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -269,12 +283,11 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
     private fun disconnected() {
         connStatus = ConnectionStatus.DISCONNECTED
         DataModel.clear()
+
         updateUI()
     }
 
     private inner class EchoWebSocketListener : WebSocketListener() {
-        private val NORMAL_CLOSURE_STATUS = 1000
-        private val TAG = "MainActivity"
 
         override fun onOpen(webSocket: WebSocket, response: Response) {
             Log.d(TAG, "Opened Websocket")
@@ -292,7 +305,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         }
 
         override fun onClosing(webSocket: WebSocket, code: Int, reason: String?) {
-            webSocket.close(NORMAL_CLOSURE_STATUS, null)
+            webSocket.close(1000, null)
             Log.i(TAG,"Closing : $code / $reason")
             disconnected()
         }
@@ -303,4 +316,5 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         }
     }
 
+    private val TAG = "MainActivity"
 }
