@@ -21,7 +21,6 @@ import java.text.DecimalFormat
 
 class SendActivity : AppCompatActivity() {
 
-    private val REQUEST_ADDRESS = 1
     private val REQUEST_CONFIRM = 2
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,7 +37,7 @@ class SendActivity : AppCompatActivity() {
 
         imageButton.setOnClickListener { view ->
             val intent = Intent(this, QrReaderActivity::class.java)
-            startActivityForResult(intent, REQUEST_ADDRESS)
+            startActivityForResult(intent, QrReaderActivity.REQUEST_ADDRESS);
         }
 
         sendAddress.addTextChangedListener (object : TextWatcher {
@@ -138,7 +137,7 @@ class SendActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
-            REQUEST_ADDRESS -> {
+            QrReaderActivity.REQUEST_ADDRESS -> {
                 if (resultCode == Activity.RESULT_OK) {
                     sendAddress.setText(data?.dataString ?: "nothing", TextView.BufferType.EDITABLE)
 

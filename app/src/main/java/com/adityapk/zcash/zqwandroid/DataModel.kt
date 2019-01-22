@@ -3,6 +3,11 @@ package com.adityapk.zcash.zqwandroid
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
 import com.beust.klaxon.Parser
+import android.R.id.edit
+import android.content.Context
+import android.content.SharedPreferences
+
+
 
 object DataModel {
     class MainResponse(val balance: Double, val saplingAddress: String, val zecprice: Double)
@@ -36,5 +41,15 @@ object DataModel {
         }
     }
 
-    var connectionURL: String? = null
+    fun setConnString(value: String, context: Context) {
+        val settings = context.getSharedPreferences("ConnInfo", 0)
+        val editor = settings.edit()
+        editor.putString("connstring", value)
+        editor.apply()
+    }
+
+    fun getConnString(context: Context) : String? {
+        val settings = context.getSharedPreferences("ConnInfo", 0)
+        return settings.getString("connstring", null)
+    }
 }

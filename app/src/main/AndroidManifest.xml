@@ -13,6 +13,14 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             android:usesCleartextTraffic="true">
+        <activity
+                android:name=".SettingsActivity"
+                android:label="@string/title_activity_settings"
+                android:parentActivityName=".SendActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="com.adityapk.zcash.zqwandroid.SendActivity"/>
+        </activity>
         <activity android:name=".QrReaderActivity">
         </activity>
         <activity

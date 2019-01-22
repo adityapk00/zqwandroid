@@ -20,6 +20,12 @@ import java.io.IOException
 
 class QrReaderActivity : AppCompatActivity() {
 
+    companion object {
+        val REQUEST_ADDRESS = 1
+        val REQUEST_CONNDATA = 2
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_qr_reader)
@@ -50,8 +56,10 @@ class QrReaderActivity : AppCompatActivity() {
         val barcodeInfo = findViewById<TextView>(R.id.code_info)
 
         val barcodeDetector = BarcodeDetector.Builder(this).setBarcodeFormats(Barcode.QR_CODE).build()
-        val cameraSource = CameraSource.Builder(this, barcodeDetector).setRequestedPreviewSize(640, 480).build()
-
+        val cameraSource = CameraSource.Builder(this, barcodeDetector)
+                                .setAutoFocusEnabled(true)
+                                .setRequestedPreviewSize(640, 480)
+                                .build()
 
         cameraView.holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceCreated(holder: SurfaceHolder) {
@@ -76,14 +84,21 @@ class QrReaderActivity : AppCompatActivity() {
             override fun receiveDetections(detections: Detector.Detections<Barcode>) {
                 val barcodes = detections.detectedItems
 
+                val code = intent.getIntExtra("REQUEST_CODE", 0)
+
                 if (barcodes.size() != 0) {
-                    runOnUiThread {
-                        barcodeInfo.text = barcodes.valueAt(0).displayValue
-                        val data = Intent()
-                        data.data = Uri.parse(barcodes.valueAt(0).displayValue)
-                        setResult(Activity.RESULT_OK, data)
-                        finish()
+                    barcodeInfo.text = barcodes.valueAt(0).displayValue
+
+                    // See if this the data is of the right format
+                    if (code == REQUEST_CONNDATA && !barcodeInfo.text.startsWith("ws")) {
+                        return
                     }
+
+                    // The data seems valid, so return it.
+                    val data = Intent()
+                    data.data = Uri.parse(barcodes.valueAt(0).displayValue)
+                    setResult(Activity.RESULT_OK, data)
+                    finish()
                 }
             }
         })

@@ -1,6 +1,7 @@
 package com.adityapk.zcash.zqwandroid
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Typeface
 import android.net.Uri
@@ -59,9 +60,9 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         }
 
         btnConnect.setOnClickListener {
-            DataModel.connectionURL = "ws://10.0.2.2:8237"
-            makeConnection()
-            makeAPICalls()
+            val intent = Intent(this, QrReaderActivity::class.java)
+            intent.putExtra("REQUEST_CODE", QrReaderActivity.REQUEST_CONNDATA)
+            startActivityForResult(intent, QrReaderActivity.REQUEST_CONNDATA)
         }
 
         makeConnection()
@@ -91,15 +92,17 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
             return
         }
 
-        if (DataModel.connectionURL.isNullOrBlank()) {
+        val connString = DataModel.getConnString(applicationContext)
+        if (connString.isNullOrBlank()) {
             return
         }
+
 
         // Update status to connecting, so we can update the UI
         connStatus = ConnectionStatus.CONNECTING
 
         val client = OkHttpClient()
-        val request = Request.Builder().url(DataModel.connectionURL!!).build()
+        val request = Request.Builder().url(connString).build()
         val listener = EchoWebSocketListener()
 
         ws = client.newWebSocket(request, listener)
@@ -240,6 +243,26 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         return when (item.itemId) {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when(requestCode) {
+            QrReaderActivity.REQUEST_CONNDATA -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    // Check to make sure that the result is an actual address
+                    if (!(data?.dataString ?: "").startsWith("ws")) {
+                        Toast.makeText(applicationContext,
+                            "${data?.dataString} is not a valid address", Toast.LENGTH_SHORT).show()
+                        return;
+                    }
+
+                    DataModel.setConnString(data?.dataString!!, applicationContext)
+
+                    makeConnection()
+                    makeAPICalls()
+                }
+            }
         }
     }
 
