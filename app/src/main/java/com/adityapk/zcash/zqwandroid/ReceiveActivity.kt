@@ -3,9 +3,12 @@ package com.adityapk.zcash.zqwandroid
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -17,6 +20,8 @@ import kotlinx.android.synthetic.main.activity_receive.*
 
 class ReceiveActivity : AppCompatActivity() {
 
+    private var addr: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -27,7 +32,7 @@ class ReceiveActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val addr = DataModel.mainResponseData?.saplingAddress ?: "no address"
+        addr = DataModel.mainResponseData?.saplingAddress ?: ""
 
         val qrgEncoder = QRGEncoder(addr, null, QRGContents.Type.TEXT, 300)
         try {
@@ -42,9 +47,9 @@ class ReceiveActivity : AppCompatActivity() {
 
         val addrTxt = findViewById<TextView>(R.id.addressTxt)
         var splitText = ""
-        val size = addr.length / 8
+        val size = addr!!.length / 8
         for (i in 0..7) {
-            splitText += addr.substring(i * size, i * size + size)
+            splitText += addr?.substring(i * size, i * size + size)
             splitText += if (i % 2 == 0) " " else "\n"
         }
         addrTxt.text = splitText
@@ -57,4 +62,22 @@ class ReceiveActivity : AppCompatActivity() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_recieve, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            R.id.action_share -> {
+                val sendIntent: Intent = Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_TEXT, addr)
+                    type = "text/plain"
+                }
+                startActivity(sendIntent)
+            }
+        }
+        return true
+    }
 }
