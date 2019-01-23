@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.design.widget.TabLayout
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
@@ -16,6 +17,7 @@ import androidmads.library.qrgenearator.QRGContents
 import androidmads.library.qrgenearator.QRGEncoder
 import com.google.zxing.WriterException
 import kotlinx.android.synthetic.main.activity_receive.*
+import kotlinx.android.synthetic.main.content_receive.*
 
 
 class ReceiveActivity : AppCompatActivity() {
@@ -32,8 +34,25 @@ class ReceiveActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        addr = DataModel.mainResponseData?.saplingAddress ?: ""
+        tabAddressType.setOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabReselected(p0: TabLayout.Tab?) {}
 
+            override fun onTabUnselected(p0: TabLayout.Tab?) {}
+
+            override fun onTabSelected(p0: TabLayout.Tab?) {
+                if (p0?.text == "zAddr") {
+                    setZAddr()
+                } else {
+                    setTAddr()
+                }
+            }
+
+        })
+
+        setZAddr()
+    }
+
+    fun setAddr() {
         val qrgEncoder = QRGEncoder(addr, null, QRGContents.Type.TEXT, 300)
         try {
             // Getting QR-Code as Bitmap
@@ -45,10 +64,16 @@ class ReceiveActivity : AppCompatActivity() {
             Log.w("receive", e.toString())
         }
 
+        if (addr.isNullOrBlank())
+            addr = "(no address)"
+
         val addrTxt = findViewById<TextView>(R.id.addressTxt)
+
+        val numsplits = if (addr!!.length > 48) 8 else 4
+        val size = addr!!.length / numsplits
+
         var splitText = ""
-        val size = addr!!.length / 8
-        for (i in 0..7) {
+        for (i in 0..(numsplits-1)) {
             splitText += addr?.substring(i * size, i * size + size)
             splitText += if (i % 2 == 0) " " else "\n"
         }
@@ -60,6 +85,18 @@ class ReceiveActivity : AppCompatActivity() {
             clipboard.primaryClip = clip
             Toast.makeText(applicationContext, "Copied address to clipboard", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    fun setTAddr() {
+        addr = DataModel.mainResponseData?.tAddress ?: ""
+        txtRcvAddrTitle.text = "Your zcash transparent address"
+        setAddr()
+    }
+
+    fun setZAddr() {
+        addr = DataModel.mainResponseData?.saplingAddress ?: ""
+        txtRcvAddrTitle.text = "Your zcash sapling address"
+        setAddr()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

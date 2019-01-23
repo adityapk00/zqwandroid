@@ -16,6 +16,7 @@ import com.google.android.gms.vision.CameraSource
 import com.google.android.gms.vision.Detector
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
+import kotlinx.android.synthetic.main.activity_qr_reader.*
 import java.io.IOException
 import java.lang.StringBuilder
 
@@ -77,6 +78,11 @@ class QrReaderActivity : AppCompatActivity() {
                 cameraSource.stop()
             }
         })
+
+        btnQrCodeCancel.setOnClickListener {
+            setResult(Activity.RESULT_CANCELED)
+            finish()
+        }
 
 
         barcodeDetector.setProcessor(object : Detector.Processor<Barcode> {

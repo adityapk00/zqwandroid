@@ -185,7 +185,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
 
             // If there are no transactions, make sure to commit the Tx, so existing items are removed, and just return
             if (txns.isNullOrEmpty()) {
-                fragTx.commit()
+                fragTx.commitAllowingStateLoss()
 
                 swiperefresh.isRefreshing = false
                 return@runOnUiThread
