@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
             }
         }
 
-        updateUI()
+        updateUI(false)
     }
 
     enum class ConnectionStatus(val status: Int) {
@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
 
         DataModel.ws = client.newWebSocket(request, listener)
 
-        updateUI()
+        updateUI(false)
     }
 
     private fun setMainStatus(status: String) {
@@ -122,9 +122,9 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
     }
 
     @SuppressLint("SetTextI18n")
-    private fun updateUI() {
+    private fun updateUI(updateTxns: Boolean) {
         runOnUiThread {
-            Log.i(TAG, "Updating UI")
+            Log.i(TAG, "Updating UI $updateTxns")
 
             bottomNav.menu.findItem(R.id.action_bal).isChecked = true
             when (connStatus) {
@@ -133,9 +133,11 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
                     scrollViewTxns.visibility = ScrollView.GONE
                     layoutConnect.visibility = ConstraintLayout.VISIBLE
                     swiperefresh.isRefreshing = false
-                    Handler().post {
-                        run {
-                            addPastTransactions(DataModel.transactions)
+                    if (updateTxns) {
+                        Handler().post {
+                            run {
+                                addPastTransactions(DataModel.transactions)
+                            }
                         }
                     }
                 }
@@ -161,9 +163,11 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
                         balanceSmall.text = balText.substring(balText.length - 4, balText.length)
                         txtMainBalanceUSD.text = "$ " + DecimalFormat("#,##0.00").format(bal * zPrice)
                     }
-                    Handler().post {
-                        run {
-                            addPastTransactions(DataModel.transactions)
+                    if (updateTxns) {
+                        Handler().post {
+                            run {
+                                addPastTransactions(DataModel.transactions)
+                            }
                         }
                     }
                 }
@@ -283,7 +287,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         connStatus = ConnectionStatus.DISCONNECTED
         DataModel.clear()
 
-        updateUI()
+        updateUI(true)
     }
 
     private inner class EchoWebSocketListener : WebSocketListener() {
@@ -295,8 +299,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
 
         override fun onMessage(webSocket: WebSocket?, text: String?) {
             Log.i(TAG, "Recieving $text")
-            DataModel.parseResponse(text!!)
-            updateUI()
+            updateUI(DataModel.parseResponse(text!!))
             Log.i(TAG, "parsed successfully")
         }
 

@@ -24,10 +24,14 @@ object DataModel {
         transactions = null
     }
 
-    fun parseResponse(response: String) {
+    fun parseResponse(response: String) : Boolean {
         val json = Parser.default().parse(StringBuilder(response)) as JsonObject
-        when (json.string("command")) {
-            "getInfo" -> mainResponseData = Klaxon().parse<MainResponse>(response)
+
+        return when (json.string("command")) {
+            "getInfo" -> {
+                mainResponseData = Klaxon().parse<MainResponse>(response)
+                return false
+            }
             "getTransactions" -> {
                 transactions = json.array<JsonObject>("transactions").orEmpty().map { tx ->
                     TransactionItem(
@@ -39,7 +43,9 @@ object DataModel {
                         tx.string("txid") ?: "",
                         tx.long("confirmations") ?: 0)
                 }
+                return true
             }
+            else -> false
         }
     }
 
