@@ -6,6 +6,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.text.*
@@ -32,6 +33,7 @@ class SendActivity : AppCompatActivity() {
 
         // Clear the valid address prompt
         txtValidAddress.text = ""
+        txtSendCurrencySymbol.text = ""
 
         imageButton.setOnClickListener { view ->
             val intent = Intent(this, QrReaderActivity::class.java)
@@ -44,7 +46,7 @@ class SendActivity : AppCompatActivity() {
 
             @SuppressLint("SetTextI18n")
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if (isValidAddress(s.toString())) {
+                if (DataModel.isValidAddress(s.toString())) {
                     txtValidAddress.text = "\u2713 Valid address"
                     txtValidAddress.setTextColor(ContextCompat.getColor(applicationContext, R.color.colorPrimary))
                 } else {
@@ -62,6 +64,7 @@ class SendActivity : AppCompatActivity() {
                 }
             }
         })
+
         amountUSD.addTextChangedListener (object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun afterTextChanged(s: Editable?) {}
@@ -70,6 +73,13 @@ class SendActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val usd = s.toString().toDoubleOrNull()
                 val zprice = DataModel.mainResponseData?.zecprice
+
+                if (usd == null) {
+                    txtSendCurrencySymbol.text = "" // Let the placeholder show the "$" sign
+                } else {
+                    txtSendCurrencySymbol.text = "$"
+                }
+
                 if (usd == null || zprice == null)
                     amountZEC.text = "ZEC 0.0"
                 else
@@ -94,7 +104,7 @@ class SendActivity : AppCompatActivity() {
         btnSend.setOnClickListener { view ->
             // First, check if the address is correct.
             val toAddr = sendAddress.text.toString()
-            if (!isValidAddress(toAddr)) {
+            if (!DataModel.isValidAddress(toAddr)) {
                 showErrorDialog("Invalid destination address!")
                 return@setOnClickListener
             }
@@ -147,28 +157,18 @@ class SendActivity : AppCompatActivity() {
             }
             REQUEST_CONFIRM -> {
                 if (resultCode == Activity.RESULT_OK) {
-                    // Send
-                    val tx = Klaxon().parse<DataModel.TransactionItem>(data?.dataString!!)
-                    DataModel.sendTx(tx!!)
+                    // Send async, so that we don't mess up the activity flow
+                    Handler().post {
+                        val tx = Klaxon().parse<DataModel.TransactionItem>(data?.dataString!!)
+                        DataModel.sendTx(tx!!)
 
-                    finish()
+                        finish()
+                    }
                 } else {
                     // Cancel
                 }
             }
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        setVisible(true)
-    }
-
-    fun isValidAddress(a: String) : Boolean {
-        return  Regex("^z[a-z0-9]{77}$", RegexOption.IGNORE_CASE).matches(a) ||
-                Regex("^ztestsapling[a-z0-9]{76}", RegexOption.IGNORE_CASE).matches(a) ||
-                Regex("^t[a-z0-9]{34}$", RegexOption.IGNORE_CASE).matches(a)
-
     }
 
 }

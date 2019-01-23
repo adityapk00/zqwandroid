@@ -17,6 +17,7 @@ import com.google.android.gms.vision.Detector
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
 import java.io.IOException
+import java.lang.StringBuilder
 
 class QrReaderActivity : AppCompatActivity() {
 
@@ -43,9 +44,9 @@ class QrReaderActivity : AppCompatActivity() {
         when (requestCode) {
             50 -> {
                 if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    setupCamera()
-                } else {
                     // Do what if user refuses permission? Go back?
+                } else {
+                    setupCamera()
                 }
             }
         }
@@ -92,6 +93,10 @@ class QrReaderActivity : AppCompatActivity() {
 
                         // See if this the data is of the right format
                         if (code == REQUEST_CONNDATA && !barcodeInfo.text.startsWith("ws")) {
+                            return@runOnUiThread
+                        }
+
+                        if (code == REQUEST_ADDRESS && !DataModel.isValidAddress(StringBuilder(barcodeInfo.text ?: "").toString())) {
                             return@runOnUiThread
                         }
 

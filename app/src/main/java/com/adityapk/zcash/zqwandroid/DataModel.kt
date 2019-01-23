@@ -71,6 +71,14 @@ object DataModel {
         ws?.send(json { obj("command" to "getTransactions")}.toJsonString())
     }
 
+
+    fun isValidAddress(a: String) : Boolean {
+        return  Regex("^z[a-z0-9]{77}$", RegexOption.IGNORE_CASE).matches(a) ||
+                Regex("^ztestsapling[a-z0-9]{76}", RegexOption.IGNORE_CASE).matches(a) ||
+                Regex("^t[a-z0-9]{34}$", RegexOption.IGNORE_CASE).matches(a)
+
+    }
+
     private val TAG = "DataModel"
 
 }

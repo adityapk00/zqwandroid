@@ -3,28 +3,23 @@ package com.adityapk.zcash.zqwandroid
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
-import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.support.constraint.ConstraintLayout
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.Toast
+import com.adityapk.zcash.zqwandroid.DataModel.makeAPICalls
 import com.beust.klaxon.Klaxon
-import com.beust.klaxon.json
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import okhttp3.*
 import okio.ByteString
 import java.text.DecimalFormat
-import android.widget.TextView
-import com.adityapk.zcash.zqwandroid.DataModel.makeAPICalls
 
 
 class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInteractionListener , UnconfirmedTxItemFragment.OnFragmentInteractionListener{
@@ -129,6 +124,8 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
     @SuppressLint("SetTextI18n")
     private fun updateUI() {
         runOnUiThread {
+            Log.i(TAG, "Updating UI")
+
             bottomNav.menu.findItem(R.id.action_bal).isChecked = true
             when (connStatus) {
                 ConnectionStatus.DISCONNECTED -> {
@@ -175,49 +172,51 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
     }
 
     private fun addPastTransactions(txns: List<DataModel.TransactionItem>?) {
-        val fragTx = supportFragmentManager.beginTransaction()
+        runOnUiThread {
+            val fragTx = supportFragmentManager.beginTransaction()
 
-        for (fr in supportFragmentManager.fragments) {
-            fragTx.remove(fr)
-        }
+            for (fr in supportFragmentManager.fragments) {
+                fragTx.remove(fr)
+            }
 
-        // If there are no transactions, make sure to commit the Tx, so existing items are removed, and just return
-        if (txns.isNullOrEmpty()) {
-            fragTx.commit()
+            // If there are no transactions, make sure to commit the Tx, so existing items are removed, and just return
+            if (txns.isNullOrEmpty()) {
+                fragTx.commit()
+
+                swiperefresh.isRefreshing = false
+                return@runOnUiThread
+            }
+
+            // Split all the transactions into confirmations = 0 and confirmations > 0
+            // Unconfirmed first
+            val unconfirmed = txns.filter { t -> t.confirmations == 0L }
+            if (unconfirmed.isNotEmpty()) {
+                for (tx in unconfirmed) {
+                    fragTx.add(
+                        txList.id ,
+                        UnconfirmedTxItemFragment.newInstance(Klaxon().toJsonString(tx), ""),
+                        "tag1"
+                    )
+                }
+            }
+
+            // Add all confirmed transactions
+            val confirmed = txns.filter { t -> t.confirmations > 0L }
+            if (confirmed.isNotEmpty()) {
+                var oddeven = "odd"
+                for (tx in confirmed) {
+                    fragTx.add(
+                        txList.id,
+                        TransactionItemFragment.newInstance(Klaxon().toJsonString(tx), oddeven),
+                        "tag1"
+                    )
+                    oddeven = if (oddeven == "odd") "even" else "odd"
+                }
+            }
+            fragTx.commitAllowingStateLoss()
 
             swiperefresh.isRefreshing = false
-            return
         }
-
-        // Split all the transactions into confirmations = 0 and confirmations > 0
-        // Unconfirmed first
-        val unconfirmed = txns.filter { t -> t.confirmations == 0L }
-        if (unconfirmed.isNotEmpty()) {
-            for (tx in unconfirmed) {
-                fragTx.add(
-                    txList.id ,
-                    UnconfirmedTxItemFragment.newInstance(Klaxon().toJsonString(tx), ""),
-                    "tag1"
-                )
-            }
-        }
-
-        // Add all confirmed transactions
-        val confirmed = txns.filter { t -> t.confirmations > 0L }
-        if (confirmed.isNotEmpty()) {
-            var oddeven = "odd"
-            for (tx in confirmed) {
-                fragTx.add(
-                    txList.id,
-                    TransactionItemFragment.newInstance(Klaxon().toJsonString(tx), oddeven),
-                    "tag1"
-                )
-                oddeven = if (oddeven == "odd") "even" else "odd"
-            }
-        }
-        fragTx.commit()
-
-        swiperefresh.isRefreshing = false
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -247,8 +246,12 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
     }
 
     override fun onResume() {
-        makeConnection()
-        DataModel.makeAPICalls()
+        Handler().post {
+            Log.i(TAG,"OnResume for mainactivity")
+            makeConnection()
+            DataModel.makeAPICalls()
+        }
+
         super.onResume()
     }
 
@@ -257,11 +260,13 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         when(requestCode) {
             QrReaderActivity.REQUEST_CONNDATA -> {
                 if (resultCode == Activity.RESULT_OK) {
+                    Log.i(TAG, "Main Activity got result for QrCode")
+
                     // Check to make sure that the result is an actual address
                     if (!(data?.dataString ?: "").startsWith("ws")) {
                         Toast.makeText(applicationContext,
                             "${data?.dataString} is not a valid address", Toast.LENGTH_SHORT).show()
-                        return;
+                        return
                     }
 
                     DataModel.setConnString(data?.dataString!!, applicationContext)
@@ -274,6 +279,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
     }
 
     private fun disconnected() {
+        Log.i(TAG, "Disconnected")
         connStatus = ConnectionStatus.DISCONNECTED
         DataModel.clear()
 
@@ -288,9 +294,10 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         }
 
         override fun onMessage(webSocket: WebSocket?, text: String?) {
+            Log.i(TAG, "Recieving $text")
             DataModel.parseResponse(text!!)
             updateUI()
-            Log.i(TAG, "Recieving $text")
+            Log.i(TAG, "parsed successfully")
         }
 
         override fun onMessage(webSocket: WebSocket?, bytes: ByteString) {
