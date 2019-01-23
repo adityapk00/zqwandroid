@@ -4,27 +4,25 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import android.widget.TextView
 import com.google.android.gms.vision.CameraSource
 import com.google.android.gms.vision.Detector
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
 import kotlinx.android.synthetic.main.activity_qr_reader.*
 import java.io.IOException
-import java.lang.StringBuilder
 
 class QrReaderActivity : AppCompatActivity() {
 
     companion object {
-        val REQUEST_ADDRESS = 1
-        val REQUEST_CONNDATA = 2
+        const val REQUEST_ADDRESS = 1
+        const val REQUEST_CONNDATA = 2
     }
 
 
@@ -32,6 +30,11 @@ class QrReaderActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_qr_reader)
 
+        title = "Scan QR Code"
+
+        val code = intent.getIntExtra("REQUEST_CODE", 0)
+        if (code == REQUEST_ADDRESS)
+            txtQrCodeHelp.text = ""
 
         if (ContextCompat.checkSelfPermission(applicationContext, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.CAMERA), 50)
@@ -55,7 +58,6 @@ class QrReaderActivity : AppCompatActivity() {
 
     fun setupCamera() {
         val cameraView = findViewById<SurfaceView>(R.id.camera_view)
-        val barcodeInfo = findViewById<TextView>(R.id.code_info)
 
         val barcodeDetector = BarcodeDetector.Builder(this).setBarcodeFormats(Barcode.QR_CODE).build()
         val cameraSource = CameraSource.Builder(this, barcodeDetector)
@@ -95,15 +97,15 @@ class QrReaderActivity : AppCompatActivity() {
 
                 if (barcodes.size() != 0) {
                     runOnUiThread {
-                        barcodeInfo.text = barcodes.valueAt(0).displayValue
+                        val barcodeInfo = barcodes.valueAt(0).displayValue
 
                         // See if this the data is of the right format
-                        if (code == REQUEST_CONNDATA && !barcodeInfo.text.startsWith("ws")) {
+                        if (code == REQUEST_CONNDATA && !barcodeInfo.startsWith("ws")) {
                             Log.i(TAG, "Not a connection")
                             return@runOnUiThread
                         }
 
-                        if (code == REQUEST_ADDRESS && !DataModel.isValidAddress(StringBuilder(barcodeInfo.text ?: "").toString())) {
+                        if (code == REQUEST_ADDRESS && !DataModel.isValidAddress(StringBuilder(barcodeInfo ?: "").toString())) {
                             Log.i(TAG, "Not an address")
                             return@runOnUiThread
                         }
