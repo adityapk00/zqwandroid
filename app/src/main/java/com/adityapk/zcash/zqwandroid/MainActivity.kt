@@ -43,26 +43,14 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         // When creating, clear all the data first
         setMainStatus("")
 
-        fab1.setOnClickListener {view ->
-            val intent = Intent(this, ReceiveActivity::class.java)
-            startActivity(intent)
-            closeFABMenu()
-        }
-
-        fab2.setOnClickListener {
-            val intent = Intent(this, SendActivity::class.java)
-            startActivity(intent)
-            closeFABMenu()
-        }
-
-        fab.setOnClickListener {
-            if(!isFABOpen){ showFABMenu() } else { closeFABMenu() }
-        }
-
         btnConnect.setOnClickListener {
             val intent = Intent(this, QrReaderActivity::class.java)
             intent.putExtra("REQUEST_CODE", QrReaderActivity.REQUEST_CONNDATA)
             startActivityForResult(intent, QrReaderActivity.REQUEST_CONNDATA)
+        }
+
+        swiperefresh.setOnRefreshListener {
+            makeAPICalls()
         }
 
         makeConnection()
@@ -71,6 +59,25 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         txtMainBalanceUSD.setOnClickListener {
             Toast.makeText(applicationContext, "1 ZEC = $${DecimalFormat("#.##")
                 .format(DataModel.mainResponseData?.zecprice)}", Toast.LENGTH_LONG).show()
+        }
+
+        bottomNav.setOnNavigationItemSelectedListener {
+            when(it.itemId) {
+                R.id.action_send -> {
+                    val intent = Intent(this, SendActivity::class.java)
+                    startActivity(intent)
+                    return@setOnNavigationItemSelectedListener true
+                }
+                R.id.action_bal -> true
+                R.id.action_recieve -> {
+                    val intent = Intent(this, ReceiveActivity::class.java)
+                    startActivity(intent)
+                    return@setOnNavigationItemSelectedListener true
+                }
+                else -> {
+                    return@setOnNavigationItemSelectedListener false
+                }
+            }
         }
 
         updateUI()
@@ -122,16 +129,24 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
     @SuppressLint("SetTextI18n")
     private fun updateUI() {
         runOnUiThread {
+            bottomNav.menu.findItem(R.id.action_bal).isChecked = true
             when (connStatus) {
                 ConnectionStatus.DISCONNECTED -> {
                     setMainStatus("No Connection")
                     scrollViewTxns.visibility = ScrollView.GONE
                     layoutConnect.visibility = ConstraintLayout.VISIBLE
+                    swiperefresh.isRefreshing = false
+                    Handler().post {
+                        run {
+                            addPastTransactions(DataModel.transactions)
+                        }
+                    }
                 }
                 ConnectionStatus.CONNECTING -> {
                     setMainStatus("Connecting...")
-                    scrollViewTxns.visibility = ScrollView.VISIBLE
+                    scrollViewTxns.visibility = ScrollView.GONE
                     layoutConnect.visibility = ConstraintLayout.GONE
+                    swiperefresh.isRefreshing = true
                 }
                 ConnectionStatus.CONNECTED -> {
                     scrollViewTxns.visibility = ScrollView.VISIBLE
@@ -148,10 +163,10 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
                         txtMainBalance.text = "ZEC " + balText.substring(0, balText.length - 4)
                         balanceSmall.text = balText.substring(balText.length - 4, balText.length)
                         txtMainBalanceUSD.text = "$ " + DecimalFormat("#,##0.00").format(bal * zPrice)
-                        Handler().post {
-                            run {
-                                addPastTransactions(DataModel.transactions)
-                            }
+                    }
+                    Handler().post {
+                        run {
+                            addPastTransactions(DataModel.transactions)
                         }
                     }
                 }
@@ -160,32 +175,24 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
     }
 
     private fun addPastTransactions(txns: List<DataModel.TransactionItem>?) {
-        txList.removeAllViewsInLayout()
+        val fragTx = supportFragmentManager.beginTransaction()
 
-        // If there are no transactions, just return (don't add any headers either)
-        if (txns.isNullOrEmpty())
+        for (fr in supportFragmentManager.fragments) {
+            fragTx.remove(fr)
+        }
+
+        // If there are no transactions, make sure to commit the Tx, so existing items are removed, and just return
+        if (txns.isNullOrEmpty()) {
+            fragTx.commit()
+
+            swiperefresh.isRefreshing = false
             return
-
-        val addTitle = fun(title: String) {
-            // Add the "Past Transactions" TextView
-            val tv = TextView(this)
-            tv.text = title
-            val params = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            params.setMargins(16, 16, 16, 16)
-            tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
-            tv.layoutParams = params
-            tv.setTypeface(null, Typeface.BOLD)
-            txList.addView(tv)
         }
 
         // Split all the transactions into confirmations = 0 and confirmations > 0
         // Unconfirmed first
         val unconfirmed = txns.filter { t -> t.confirmations == 0L }
         if (unconfirmed.isNotEmpty()) {
-            //addTitle("Recent Transactions")
-            val fragTx = supportFragmentManager.beginTransaction()
-
             for (tx in unconfirmed) {
                 fragTx.add(
                     txList.id ,
@@ -193,15 +200,11 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
                     "tag1"
                 )
             }
-            fragTx.commit()
         }
 
         // Add all confirmed transactions
         val confirmed = txns.filter { t -> t.confirmations > 0L }
         if (confirmed.isNotEmpty()) {
-            addTitle("Recent Transactions")
-            val fragTx = supportFragmentManager.beginTransaction()
-
             var oddeven = "odd"
             for (tx in confirmed) {
                 fragTx.add(
@@ -211,24 +214,10 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
                 )
                 oddeven = if (oddeven == "odd") "even" else "odd"
             }
-            fragTx.commit()
         }
-    }
+        fragTx.commit()
 
-    private var isFABOpen = false
-
-    private fun showFABMenu() {
-        isFABOpen = true
-        fab1.animate().translationY(-resources.getDimension(R.dimen.standard_55))
-        fab2.animate().translationY(-resources.getDimension(R.dimen.standard_105))
-        fab3.animate().translationY(-resources.getDimension(R.dimen.standard_155))
-    }
-
-    private fun closeFABMenu() {
-        isFABOpen = false
-        fab1.animate().translationY(0f)
-        fab2.animate().translationY(0f)
-        fab3.animate().translationY(0f)
+        swiperefresh.isRefreshing = false
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -245,6 +234,12 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
             R.id.action_settings -> {
                 val intent = Intent(this, SettingsActivity::class.java)
                 startActivity(intent)
+                return true
+            }
+            R.id.action_refresh -> {
+                swiperefresh.isRefreshing = true
+                makeAPICalls()
+
                 return true
             }
             else -> super.onOptionsItemSelected(item)

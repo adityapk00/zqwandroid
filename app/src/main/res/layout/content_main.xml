@@ -60,20 +60,35 @@
             app:layout_constraintEnd_toEndOf="parent" android:id="@+id/imageView3"
             app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="125dp"/>
-    <ScrollView
-            android:layout_width="0dp"
-            android:layout_height="0dp" app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" android:id="@+id/scrollViewTxns"
-            app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="16dp"
-            android:fillViewport="true" android:clipToPadding="false"
-            android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/imageView3">
-        <LinearLayout android:layout_width="match_parent"
-                      android:layout_height="wrap_content"
-                      android:id="@+id/txList" android:orientation="vertical"/>
-    </ScrollView>
+    <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swiperefresh"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageView3" app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/bottomNav">
+
+        <ScrollView
+                android:layout_width="0dp"
+                android:layout_height="0dp" app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" android:id="@+id/scrollViewTxns"
+                app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="16dp"
+                android:fillViewport="true" android:clipToPadding="false"
+                android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="parent">
+            <LinearLayout android:layout_width="match_parent"
+                          android:layout_height="wrap_content"
+                          android:id="@+id/txList" android:orientation="vertical">
+                <TextView
+                        android:text="Past Transactions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:id="@+id/textView2" android:textStyle="bold"
+                        android:textSize="18sp" android:padding="16dp"/>
+            </LinearLayout>
+        </ScrollView>
+    </android.support.v4.widget.SwipeRefreshLayout>
     <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp" app:layout_constraintTop_toBottomOf="@+id/imageView3"
+            android:layout_height="364dp" app:layout_constraintTop_toBottomOf="@+id/imageView3"
             android:layout_marginBottom="32dp" app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="32dp" android:layout_marginStart="8dp" android:layout_marginEnd="8dp"
@@ -99,4 +114,11 @@
                 android:layout_marginTop="8dp"
                 app:layout_constraintTop_toBottomOf="@+id/imageView5"/>
     </android.support.constraint.ConstraintLayout>
+    <android.support.design.widget.BottomNavigationView
+            android:layout_width="match_parent"
+            android:layout_height="0dp" app:menu="@menu/menu_nav"
+            android:id="@+id/bottomNav"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintBottom_toBottomOf="parent" android:background="@drawable/layout_border"/>
 </android.support.constraint.ConstraintLayout>

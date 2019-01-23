@@ -24,14 +24,6 @@
         <activity android:name=".QrReaderActivity">
         </activity>
         <activity
-                android:name=".QrCodeReaderActivity"
-                android:label="@string/title_activity_qr_code_reader"
-                android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                    android:name="android.support.PARENT_ACTIVITY"
-                    android:value="com.adityapk.zcash.zqwandroid.SendActivity"/>
-        </activity>
-        <activity
                 android:name=".TxDetailsActivity"
                 android:label="@string/title_activity_tx_details"
                 android:parentActivityName=".MainActivity"
@@ -51,16 +43,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-        </activity>
-        <activity
-                android:name=".ScrollingActivity"
-                android:label="@string/title_activity_scrolling"
-                android:parentActivityName=".MainActivity"
-                android:screenOrientation="portrait"
-                android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                    android:name="android.support.PARENT_ACTIVITY"
-                    android:value="com.adityapk.zcash.zqwandroid.MainActivity"/>
         </activity>
         <activity
                 android:name=".ReceiveActivity"
