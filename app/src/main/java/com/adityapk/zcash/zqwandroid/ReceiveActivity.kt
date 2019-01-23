@@ -68,7 +68,7 @@ class ReceiveActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when (item?.itemId) {
+        return when (item?.itemId) {
             R.id.action_share -> {
                 val sendIntent: Intent = Intent().apply {
                     action = Intent.ACTION_SEND
@@ -76,8 +76,10 @@ class ReceiveActivity : AppCompatActivity() {
                     type = "text/plain"
                 }
                 startActivity(sendIntent)
+
+                return true
             }
+            else -> super.onOptionsItemSelected(item)
         }
-        return true
     }
 }

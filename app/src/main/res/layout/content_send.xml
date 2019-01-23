@@ -31,7 +31,7 @@
         <EditText
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:inputType="text"
+                android:inputType="textNoSuggestions|text"
                 android:ems="10"
                 android:id="@+id/sendAddress"
                 app:layout_constraintEnd_toStartOf="@+id/imageButton"
@@ -48,7 +48,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView7" tools:layout_conversion_absoluteHeight="51dp"
                 tools:layout_conversion_absoluteWidth="56dp" android:layout_marginTop="16dp"
-                android:layout_marginEnd="8dp"/>
+                android:background="@android:color/transparent"/>
         <TextView
                 android:text="Valid Address"
                 android:layout_width="0dp"
@@ -86,13 +86,6 @@
                 android:id="@+id/amountZEC"
                 app:layout_constraintTop_toBottomOf="@+id/amountUSD"
                 app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="16dp"/>
-        <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" app:srcCompat="@android:drawable/stat_notify_sync"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" android:id="@+id/imageView4"
-                app:layout_constraintStart_toEndOf="@+id/amountUSD" android:layout_marginStart="32dp"
-                android:background="@color/colorPrimary"/>
         <TextView
                 android:text="Amount"
                 android:layout_width="wrap_content"
