@@ -149,12 +149,20 @@ class SendActivity : AppCompatActivity() {
             REQUEST_CONFIRM -> {
                 if (resultCode == Activity.RESULT_OK) {
                     // Send
+                    val tx = Klaxon().parse<DataModel.TransactionItem>(data?.dataString!!)
+                    DataModel.sendTx(tx!!)
+
                     finish()
                 } else {
                     // Cancel
                 }
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        setVisible(true)
     }
 
     fun isValidAddress(a: String) : Boolean {

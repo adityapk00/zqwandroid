@@ -87,18 +87,21 @@ class QrReaderActivity : AppCompatActivity() {
                 val code = intent.getIntExtra("REQUEST_CODE", 0)
 
                 if (barcodes.size() != 0) {
-                    barcodeInfo.text = barcodes.valueAt(0).displayValue
+                    runOnUiThread {
+                        barcodeInfo.text = barcodes.valueAt(0).displayValue
 
-                    // See if this the data is of the right format
-                    if (code == REQUEST_CONNDATA && !barcodeInfo.text.startsWith("ws")) {
-                        return
+                        // See if this the data is of the right format
+                        if (code == REQUEST_CONNDATA && !barcodeInfo.text.startsWith("ws")) {
+                            return@runOnUiThread
+                        }
+
+                        // The data seems valid, so return it.
+                        val data = Intent()
+                        data.data = Uri.parse(barcodes.valueAt(0).displayValue)
+                        setResult(Activity.RESULT_OK, data)
+                        finish()
                     }
 
-                    // The data seems valid, so return it.
-                    val data = Intent()
-                    data.data = Uri.parse(barcodes.valueAt(0).displayValue)
-                    setResult(Activity.RESULT_OK, data)
-                    finish()
                 }
             }
         })

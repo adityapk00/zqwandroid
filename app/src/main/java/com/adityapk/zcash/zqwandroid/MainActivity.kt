@@ -6,6 +6,7 @@ import android.content.Intent
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.support.constraint.ConstraintLayout
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -23,8 +24,7 @@ import okhttp3.*
 import okio.ByteString
 import java.text.DecimalFormat
 import android.widget.TextView
-
-
+import com.adityapk.zcash.zqwandroid.DataModel.makeAPICalls
 
 
 class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInteractionListener , UnconfirmedTxItemFragment.OnFragmentInteractionListener{
@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         }
 
         makeConnection()
-        makeAPICalls()
+        DataModel.makeAPICalls()
 
         txtMainBalanceUSD.setOnClickListener {
             Toast.makeText(applicationContext, "1 ZEC = $${DecimalFormat("#.##")
@@ -76,13 +76,12 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         updateUI()
     }
 
-    private var ws : WebSocket? = null
-
     enum class ConnectionStatus(val status: Int) {
         DISCONNECTED(1),
         CONNECTING(2),
         CONNECTED(3)
     }
+
     private var connStatus: ConnectionStatus = ConnectionStatus.DISCONNECTED
 
     // Attempt a connection to the server. If there is no saved connection, we'll set the connection status
@@ -92,7 +91,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         if (connString.isNullOrBlank()) {
             // The user might have just disconnected, so make sure we are disconnected
 
-            ws?.close(1000, "disconnected")
+            DataModel.ws?.close(1000, "disconnected")
             return
         }
 
@@ -108,14 +107,9 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         val request = Request.Builder().url(connString).build()
         val listener = EchoWebSocketListener()
 
-        ws = client.newWebSocket(request, listener)
+        DataModel.ws = client.newWebSocket(request, listener)
 
         updateUI()
-    }
-
-    private fun makeAPICalls() {
-        ws?.send(json { obj("command" to "getInfo") }.toJsonString())
-        ws?.send(json { obj("command" to "getTransactions")}.toJsonString())
     }
 
     private fun setMainStatus(status: String) {
@@ -154,8 +148,11 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
                         txtMainBalance.text = "ZEC " + balText.substring(0, balText.length - 4)
                         balanceSmall.text = balText.substring(balText.length - 4, balText.length)
                         txtMainBalanceUSD.text = "$ " + DecimalFormat("#,##0.00").format(bal * zPrice)
-
-                        addPastTransactions(DataModel.transactions)
+                        Handler().post {
+                            run {
+                                addPastTransactions(DataModel.transactions)
+                            }
+                        }
                     }
                 }
             }
@@ -208,7 +205,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
             var oddeven = "odd"
             for (tx in confirmed) {
                 fragTx.add(
-                    txList.id ,
+                    txList.id,
                     TransactionItemFragment.newInstance(Klaxon().toJsonString(tx), oddeven),
                     "tag1"
                 )
@@ -256,9 +253,10 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
 
     override fun onResume() {
         makeConnection()
-        makeAPICalls()
+        DataModel.makeAPICalls()
         super.onResume()
     }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when(requestCode) {
@@ -274,7 +272,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
                     DataModel.setConnString(data?.dataString!!, applicationContext)
 
                     makeConnection()
-                    makeAPICalls()
+                    DataModel.makeAPICalls()
                 }
             }
         }

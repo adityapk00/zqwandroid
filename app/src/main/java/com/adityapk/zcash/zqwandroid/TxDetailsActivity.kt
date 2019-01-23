@@ -62,7 +62,10 @@ class TxDetailsActivity : AppCompatActivity() {
 
         btnExternal.setOnClickListener { v ->
             if (tx?.type == "confirm") {
-                setResult(Activity.RESULT_OK)
+                val data = Intent()
+                data.data = Uri.parse(Klaxon().toJsonString(tx))
+                setResult(Activity.RESULT_OK, data);
+
                 finish()
             } else {
                 val browserIntent = Intent(

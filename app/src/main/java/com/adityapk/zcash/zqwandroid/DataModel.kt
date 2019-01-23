@@ -1,12 +1,12 @@
 package com.adityapk.zcash.zqwandroid
 
+import android.content.Context
+import android.util.Log
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
 import com.beust.klaxon.Parser
-import android.R.id.edit
-import android.content.Context
-import android.content.SharedPreferences
-
+import com.beust.klaxon.json
+import okhttp3.WebSocket
 
 
 object DataModel {
@@ -16,6 +16,8 @@ object DataModel {
 
     var mainResponseData : MainResponse? = null
     var transactions : List<TransactionItem> ?= null
+
+    var ws : WebSocket? = null
 
     fun clear() {
         mainResponseData = null
@@ -52,4 +54,23 @@ object DataModel {
         val settings = context.getSharedPreferences("ConnInfo", 0)
         return settings.getString("connstring", null)
     }
+
+    fun sendTx(tx: TransactionItem) {
+        val payload = json { obj("command" to "sendTx", "tx" to obj(
+            "amount" to tx.amount,
+            "to" to tx.addr,
+            "memo" to tx.memo
+        )) }
+
+        Log.w(TAG, payload.toJsonString(true))
+        ws?.send(payload.toJsonString())
+    }
+
+    fun makeAPICalls() {
+        ws?.send(json { obj("command" to "getInfo") }.toJsonString())
+        ws?.send(json { obj("command" to "getTransactions")}.toJsonString())
+    }
+
+    private val TAG = "DataModel"
+
 }
