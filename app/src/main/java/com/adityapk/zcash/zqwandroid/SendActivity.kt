@@ -37,7 +37,8 @@ class SendActivity : AppCompatActivity() {
 
         imageButton.setOnClickListener { view ->
             val intent = Intent(this, QrReaderActivity::class.java)
-            startActivityForResult(intent, QrReaderActivity.REQUEST_ADDRESS);
+            intent.putExtra("REQUEST_CODE", QrReaderActivity.REQUEST_ADDRESS)
+            startActivityForResult(intent, QrReaderActivity.REQUEST_ADDRESS)
         }
 
         sendAddress.addTextChangedListener (object : TextWatcher {
@@ -81,9 +82,9 @@ class SendActivity : AppCompatActivity() {
                 }
 
                 if (usd == null || zprice == null)
-                    amountZEC.text = "ZEC 0.0"
+                    amountZEC.text = "${DataModel.mainResponseData?.tokenName} 0.0"
                 else
-                    amountZEC.text = "ZEC " + DecimalFormat("#.########").format(usd / zprice)
+                    amountZEC.text = "${DataModel.mainResponseData?.tokenName} " + DecimalFormat("#.########").format(usd / zprice)
             }
         })
 
@@ -110,7 +111,7 @@ class SendActivity : AppCompatActivity() {
             }
 
             val amt = amountZEC.text.toString()
-            val parsedAmt = amt.substring("ZEC ".length, amt.length)
+            val parsedAmt = amt.substring("${DataModel.mainResponseData?.tokenName} ".length, amt.length)
             if (parsedAmt.toDoubleOrNull() == 0.0 || parsedAmt.toDoubleOrNull() == null) {
                 showErrorDialog("Invalid amount!")
                 return@setOnClickListener

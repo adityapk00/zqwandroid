@@ -159,7 +159,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
                         val balText = DecimalFormat("#0.00000000").format(bal)
 
                         lblBalance.text = "Balance"
-                        txtMainBalance.text = "ZEC " + balText.substring(0, balText.length - 4)
+                        txtMainBalance.text = "${DataModel.mainResponseData?.tokenName} " + balText.substring(0, balText.length - 4)
                         balanceSmall.text = balText.substring(balText.length - 4, balText.length)
                         txtMainBalanceUSD.text = "$ " + DecimalFormat("#,##0.00").format(bal * zPrice)
                     }

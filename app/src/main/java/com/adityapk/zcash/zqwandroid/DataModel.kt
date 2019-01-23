@@ -10,7 +10,7 @@ import okhttp3.WebSocket
 
 
 object DataModel {
-    class MainResponse(val balance: Double, val saplingAddress: String, val zecprice: Double)
+    class MainResponse(val balance: Double, val saplingAddress: String, val zecprice: Double, val tokenName: String)
     class TransactionItem(val type: String, val datetime: Long, val amount: String, val memo: String?,
                           val addr: String, val txid: String?, val confirmations: Long)
 

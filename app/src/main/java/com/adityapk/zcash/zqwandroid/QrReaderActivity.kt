@@ -93,10 +93,12 @@ class QrReaderActivity : AppCompatActivity() {
 
                         // See if this the data is of the right format
                         if (code == REQUEST_CONNDATA && !barcodeInfo.text.startsWith("ws")) {
+                            Log.i(TAG, "Not a connection")
                             return@runOnUiThread
                         }
 
                         if (code == REQUEST_ADDRESS && !DataModel.isValidAddress(StringBuilder(barcodeInfo.text ?: "").toString())) {
+                            Log.i(TAG, "Not an address")
                             return@runOnUiThread
                         }
 
@@ -111,4 +113,6 @@ class QrReaderActivity : AppCompatActivity() {
             }
         })
     }
+
+    private val TAG = "QrReader"
 }
