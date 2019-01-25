@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.support.constraint.ConstraintLayout
+import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
@@ -19,6 +20,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import okhttp3.*
 import okio.ByteString
+import java.net.ConnectException
 import java.text.DecimalFormat
 
 
@@ -46,7 +48,15 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
             startActivityForResult(intent, QrReaderActivity.REQUEST_CONNDATA)
         }
 
+        btnReconnect.setOnClickListener {
+            makeConnection()
+            DataModel.makeAPICalls()
+        }
+
         swiperefresh.setOnRefreshListener {
+            if (connStatus == ConnectionStatus.DISCONNECTED) {
+                makeConnection()
+            }
             makeAPICalls()
         }
 
@@ -286,11 +296,10 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
 
     private fun disconnected() {
         Log.i(TAG, "Disconnected")
-        connStatus = ConnectionStatus.DISCONNECTED
         DataModel.clear()
-
         updateUI(true)
     }
+
 
     private inner class EchoWebSocketListener : WebSocketListener() {
 
@@ -311,12 +320,17 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
 
         override fun onClosing(webSocket: WebSocket, code: Int, reason: String?) {
             webSocket.close(1000, null)
+            connStatus = ConnectionStatus.DISCONNECTED
             Log.i(TAG,"Closing : $code / $reason")
             disconnected()
         }
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
             Log.e(TAG,"Failed $t")
+            connStatus = ConnectionStatus.DISCONNECTED
+            if (t is ConnectException) {
+                Snackbar.make(layoutConnect, t.localizedMessage, Snackbar.LENGTH_SHORT).show()
+            }
             disconnected()
         }
     }
