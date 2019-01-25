@@ -36,11 +36,7 @@ class QrReaderActivity : AppCompatActivity() {
         if (code == REQUEST_ADDRESS)
             txtQrCodeHelp.text = ""
 
-        if (ContextCompat.checkSelfPermission(applicationContext, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.CAMERA), 50)
-        } else {
-            setupCamera()
-        }
+        setupCamera()
     }
 
 
@@ -50,7 +46,7 @@ class QrReaderActivity : AppCompatActivity() {
                 if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                     // Do what if user refuses permission? Go back?
                 } else {
-                    setupCamera()
+                    recreate()
                 }
             }
         }
@@ -65,10 +61,15 @@ class QrReaderActivity : AppCompatActivity() {
                                 .setRequestedPreviewSize(640, 480)
                                 .build()
 
+
         cameraView.holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceCreated(holder: SurfaceHolder) {
                 try {
-                    cameraSource.start(cameraView.getHolder())
+                    if (ContextCompat.checkSelfPermission(applicationContext, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(this@QrReaderActivity, arrayOf(android.Manifest.permission.CAMERA), 50)
+                    } else {
+                        cameraSource.start(cameraView.holder)
+                    }
                 } catch (ie: IOException) {
                     Log.e("CAMERA SOURCE", ie.message)
                 }

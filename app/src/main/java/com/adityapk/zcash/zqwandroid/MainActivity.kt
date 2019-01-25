@@ -12,7 +12,9 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Button
 import android.widget.ScrollView
+import android.widget.TextView
 import android.widget.Toast
 import com.beust.klaxon.Klaxon
 import kotlinx.android.synthetic.main.activity_main.*
@@ -145,9 +147,19 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
             when (connStatus) {
                 ConnectionStatus.DISCONNECTED -> {
                     setMainStatus("No Connection")
+
                     scrollViewTxns.visibility = ScrollView.GONE
                     layoutConnect.visibility = ConstraintLayout.VISIBLE
                     swiperefresh.isRefreshing = false
+
+                    // Hide the reconnect button if there is no connection string
+                    if (DataModel.getConnString(ZQWApp.appContext!!).isNullOrBlank()) {
+                        btnReconnect.visibility = Button.GONE
+                        lblConnectionOr.visibility = TextView.GONE
+                    } else {
+                        btnReconnect.visibility = Button.VISIBLE
+                        lblConnectionOr.visibility = TextView.VISIBLE
+                    }
 
                     // Disable the send and recieve buttons
                     bottomNav.menu.findItem(R.id.action_recieve).isEnabled = false

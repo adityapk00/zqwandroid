@@ -10,8 +10,15 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
+        updateUI()
+
         btnDisconnect.setOnClickListener {
             DataModel.setConnString(null, applicationContext)
+            updateUI()
         }
+    }
+
+    fun updateUI() {
+        txtSettingsConnString.text = DataModel.getConnString(ZQWApp.appContext!!) ?: "Not Connected"
     }
 }
