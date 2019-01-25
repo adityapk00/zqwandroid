@@ -9,6 +9,7 @@ import com.beust.klaxon.json
 import okhttp3.WebSocket
 import org.libsodium.jni.NaCl
 import org.libsodium.jni.Sodium
+import java.math.BigInteger
 
 
 object DataModel {
@@ -33,7 +34,7 @@ object DataModel {
     }
 
     fun String.hexStringToByteArray(byteSize: Int) : ByteArray {
-        val s = "00".repeat(byteSize - this.length / 2)
+        val s = "00".repeat(byteSize - (this.length / 2) ) + this
         return ByteArray(byteSize) { s.substring(it * 2, it * 2 + 2).toInt(16).toByte() }
     }
 
@@ -70,6 +71,11 @@ object DataModel {
 
     fun parseResponse(response: String) : Boolean {
         val json = Parser.default().parse(StringBuilder(response)) as JsonObject
+
+        // Check if input string is encrypted
+        if (json.containsKey("nonce")) {
+            return parseResponse(decrypt(json["nonce"].toString(), json["payload"].toString()))
+        }
 
         return when (json.string("command")) {
             "getInfo" -> {
@@ -129,6 +135,28 @@ object DataModel {
 
     }
 
+    fun decrypt(nonceHex: String, encHex: String) : String {
+        // Decrypt the hex string into a regular string and return
+
+        // First make sure the remote nonce is valid
+        checkAndUpdateRemoteNonce(nonceHex);
+
+        val encsize = encHex.length / 2
+        val encbin = encHex.hexStringToByteArray(encHex.length / 2)
+
+        val decrypted = ByteArray(encsize - Sodium.crypto_secretbox_macbytes())
+
+        val noncebin = nonceHex.hexStringToByteArray(Sodium.crypto_secretbox_noncebytes())
+
+
+        Sodium.crypto_secretbox_open_easy(decrypted, encbin, encsize, noncebin, secret);
+
+        val s = String(decrypted)
+
+        println("Decrypted to: ${String(decrypted)}")
+        return String(decrypted)
+    }
+
     fun encrypt(s : String) : String {
         // Take the string, encrypt it and send it as the payload with the nonce in a Json string
         val msg = s.toByteArray()
@@ -151,16 +179,27 @@ object DataModel {
         return j.toJsonString()
     }
 
+    fun checkAndUpdateRemoteNonce(remoteNonce: String) {
+        val settings = ZQWApp.appContext!!.getSharedPreferences("Nonce", 0)
+        val prevNonceHex = settings.getString("remotenonce", "00".repeat(Sodium.crypto_secretbox_noncebytes()))
+
+        // The problem is the nonces are hex encoded in little endian, but the BigDecimal contructor expects the nonces
+        // in big endian format. So flip the endian-ness of the hex strings for comparision
+
+        check(BigInteger(remoteNonce.chunked(2).reversed().joinToString(""), 16) > BigInteger(prevNonceHex.chunked(2).reversed().joinToString(""), 16))
+
+        val editor = settings.edit()
+        editor.putString("remotenonce", remoteNonce)
+        editor.apply()
+    }
+
     fun incAndGetLocalNonce() : ByteArray {
         val settings = ZQWApp.appContext!!.getSharedPreferences("Nonce", 0)
         val nonceHex = settings.getString("localnonce", "00".repeat(Sodium.crypto_secretbox_noncebytes()))
 
         val nonce = nonceHex!!.hexStringToByteArray(Sodium.crypto_secretbox_noncebytes())
-        // sodium_increment assumes little endian, but we are big endian
-        nonce.reverse()
         Sodium.sodium_increment(nonce, nonce.size)
         Sodium.sodium_increment(nonce, nonce.size)
-        nonce.reverse()
 
         val editor = settings.edit()
         editor.putString("localnonce", nonce.toHexString())
