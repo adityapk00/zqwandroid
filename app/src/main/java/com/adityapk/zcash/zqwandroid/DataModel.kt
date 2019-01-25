@@ -9,7 +9,6 @@ import com.beust.klaxon.json
 import okhttp3.WebSocket
 import org.libsodium.jni.NaCl
 import org.libsodium.jni.Sodium
-import java.math.BigInteger
 
 
 object DataModel {
@@ -28,7 +27,6 @@ object DataModel {
     }
 
     var secret : ByteArray? = null
-    var nonce  : ByteArray? = null
 
     fun ByteArray.toHexString() : String {
         return (joinToString("") { String.format("%02x", it) })
@@ -39,13 +37,12 @@ object DataModel {
         return ByteArray(byteSize) { s.substring(it * 2, it * 2 + 2).toInt(16).toByte() }
     }
 
-    fun init(context: Context) {
+    fun init() {
         val sodium = NaCl.sodium()
 
         secret = ByteArray(Sodium.crypto_hash_sha256_bytes())
         Sodium.crypto_hash_sha256(secret, "secret".toByteArray(), "secret".toByteArray().size)
 
-        nonce = ByteArray(Sodium.crypto_secretbox_noncebytes())
         /*
         val message = "test".toByteArray()
         val noncelen = Sodium.crypto_secretbox_noncebytes().toLong()
@@ -137,7 +134,6 @@ object DataModel {
         val msg = s.toByteArray()
 
         check(secret != null)
-        check(nonce != null)
 
         val encrypted = ByteArray(msg.size + Sodium.crypto_secretbox_macbytes())
 
@@ -149,24 +145,30 @@ object DataModel {
             println("Encryption failed")
         }
 
-        val j = json { obj("nonce" to localNonce?.toHexString(),
+        val j = json { obj("nonce" to localNonce.toHexString(),
                           ("payload" to encrypted.toHexString()))}
 
         return j.toJsonString()
     }
 
     fun incAndGetLocalNonce() : ByteArray {
-        doInc(nonce!!)
-        doInc(nonce!!)
+        val settings = ZQWApp.appContext!!.getSharedPreferences("Nonce", 0)
+        val nonceHex = settings.getString("localnonce", "00".repeat(Sodium.crypto_secretbox_noncebytes()))
 
-        return nonce!!
+        val nonce = nonceHex!!.hexStringToByteArray(Sodium.crypto_secretbox_noncebytes())
+        // sodium_increment assumes little endian, but we are big endian
+        nonce.reverse()
+        Sodium.sodium_increment(nonce, nonce.size)
+        Sodium.sodium_increment(nonce, nonce.size)
+        nonce.reverse()
+
+        val editor = settings.edit()
+        editor.putString("localnonce", nonce.toHexString())
+        editor.apply()
+
+        return nonce
     }
 
-    fun doInc(ba : ByteArray) {
-        ba.reverse()
-        Sodium.sodium_increment(ba, ba.size)
-        ba.reverse()
-    }
 
     private val TAG = "DataModel"
 
