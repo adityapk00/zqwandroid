@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         // When creating, clear all the data first
         setMainStatus("")
 
-        DataModel.init()
+        DataModel.init(applicationContext)
 
         btnConnect.setOnClickListener {
             val intent = Intent(this, QrReaderActivity::class.java)

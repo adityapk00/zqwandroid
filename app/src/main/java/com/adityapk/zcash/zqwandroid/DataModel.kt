@@ -30,17 +30,23 @@ object DataModel {
     var secret : ByteArray? = null
     var nonce  : ByteArray? = null
 
-    fun ByteArray.toHexString() = joinToString("") { String.format("%02x", it) }
+    fun ByteArray.toHexString() : String {
+        return (joinToString("") { String.format("%02x", it) })
+    }
 
-    fun init() {
+    fun String.hexStringToByteArray(byteSize: Int) : ByteArray {
+        val s = "00".repeat(byteSize - this.length / 2)
+        return ByteArray(byteSize) { s.substring(it * 2, it * 2 + 2).toInt(16).toByte() }
+    }
+
+    fun init(context: Context) {
         val sodium = NaCl.sodium()
 
         secret = ByteArray(Sodium.crypto_hash_sha256_bytes())
         Sodium.crypto_hash_sha256(secret, "secret".toByteArray(), "secret".toByteArray().size)
 
-        nonce = ByteArray(Sodium.crypto_box_noncebytes())
-        Sodium.randombytes_buf(nonce, Sodium.crypto_box_noncebytes())
-
+        nonce = ByteArray(Sodium.crypto_secretbox_noncebytes())
+        /*
         val message = "test".toByteArray()
         val noncelen = Sodium.crypto_secretbox_noncebytes().toLong()
         val nonce = ByteArray(noncelen.toInt())
@@ -62,6 +68,7 @@ object DataModel {
 
         Log.i(TAG, ret.toString())
         println("Recovered message=" + String(decrypted))
+        */
     }
 
     fun parseResponse(response: String) : Boolean {
@@ -109,12 +116,12 @@ object DataModel {
         )) }
 
         Log.w(TAG, payload.toJsonString(true))
-        ws?.send(payload.toJsonString())
+        ws?.send(encrypt(payload.toJsonString()))
     }
 
     fun makeAPICalls() {
         ws?.send(encrypt(json { obj("command" to "getInfo") }.toJsonString()))
-        ws?.send(json { obj("command" to "getTransactions")}.toJsonString())
+        ws?.send(encrypt(json { obj("command" to "getTransactions")}.toJsonString()))
     }
 
 
@@ -135,17 +142,30 @@ object DataModel {
         val encrypted = ByteArray(msg.size + Sodium.crypto_secretbox_macbytes())
 
         // Increment nonce
-        Sodium.sodium_increment(nonce, nonce?.size ?: 0)
+        val localNonce = incAndGetLocalNonce()
 
-        val ret = Sodium.crypto_secretbox_easy(encrypted, msg, msg.size, nonce, secret)
+        val ret = Sodium.crypto_secretbox_easy(encrypted, msg, msg.size, localNonce, secret)
         if (ret != 0) {
             println("Encryption failed")
         }
 
-        val j = json { obj("nonce" to nonce?.toHexString(),
+        val j = json { obj("nonce" to localNonce?.toHexString(),
                           ("payload" to encrypted.toHexString()))}
 
         return j.toJsonString()
+    }
+
+    fun incAndGetLocalNonce() : ByteArray {
+        doInc(nonce!!)
+        doInc(nonce!!)
+
+        return nonce!!
+    }
+
+    fun doInc(ba : ByteArray) {
+        ba.reverse()
+        Sodium.sodium_increment(ba, ba.size)
+        ba.reverse()
     }
 
     private val TAG = "DataModel"
