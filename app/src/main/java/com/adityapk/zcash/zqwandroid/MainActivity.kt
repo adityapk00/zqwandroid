@@ -14,7 +14,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.ScrollView
 import android.widget.Toast
-import com.adityapk.zcash.zqwandroid.DataModel.makeAPICalls
 import com.beust.klaxon.Klaxon
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
@@ -50,18 +49,15 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
 
         btnReconnect.setOnClickListener {
             makeConnection()
-            DataModel.makeAPICalls()
+            updateData()
         }
 
         swiperefresh.setOnRefreshListener {
             if (connStatus == ConnectionStatus.DISCONNECTED) {
                 makeConnection()
             }
-            makeAPICalls()
+            updateData()
         }
-
-        makeConnection()
-        DataModel.makeAPICalls()
 
         txtMainBalanceUSD.setOnClickListener {
             Toast.makeText(applicationContext, "1 ZEC = $${DecimalFormat("#.##")
@@ -126,6 +122,13 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         updateUI(false)
     }
 
+    private fun updateData() {
+        // If there is a connection, get the data model to update itself
+        if (connStatus != ConnectionStatus.DISCONNECTED) {
+            DataModel.makeAPICalls()
+        }
+    }
+
     private fun setMainStatus(status: String) {
         lblBalance.text = ""
         txtMainBalanceUSD.text = ""
@@ -145,6 +148,11 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
                     scrollViewTxns.visibility = ScrollView.GONE
                     layoutConnect.visibility = ConstraintLayout.VISIBLE
                     swiperefresh.isRefreshing = false
+
+                    // Disable the send and recieve buttons
+                    bottomNav.menu.findItem(R.id.action_recieve).isEnabled = false
+                    bottomNav.menu.findItem(R.id.action_send).isEnabled = false
+
                     if (updateTxns) {
                         Handler().post {
                             run {
@@ -158,10 +166,15 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
                     scrollViewTxns.visibility = ScrollView.GONE
                     layoutConnect.visibility = ConstraintLayout.GONE
                     swiperefresh.isRefreshing = true
+
+                    // Disable the send and recieve buttons
+                    bottomNav.menu.findItem(R.id.action_recieve).isEnabled = false
+                    bottomNav.menu.findItem(R.id.action_send).isEnabled = false
                 }
                 ConnectionStatus.CONNECTED -> {
                     scrollViewTxns.visibility = ScrollView.VISIBLE
                     layoutConnect.visibility = ConstraintLayout.GONE
+
                     if (DataModel.mainResponseData == null) {
                         setMainStatus("Loading...")
                     } else {
@@ -174,7 +187,12 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
                         txtMainBalance.text = "${DataModel.mainResponseData?.tokenName} " + balText.substring(0, balText.length - 4)
                         balanceSmall.text = balText.substring(balText.length - 4, balText.length)
                         txtMainBalanceUSD.text = "$ " + DecimalFormat("#,##0.00").format(bal * zPrice)
+
+                        // Enable the send and recieve buttons
+                        bottomNav.menu.findItem(R.id.action_recieve).isEnabled = true
+                        bottomNav.menu.findItem(R.id.action_send).isEnabled = true
                     }
+
                     if (updateTxns) {
                         Handler().post {
                             run {
@@ -253,7 +271,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
             }
             R.id.action_refresh -> {
                 swiperefresh.isRefreshing = true
-                makeAPICalls()
+                updateData()
 
                 return true
             }
@@ -265,7 +283,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         Handler().post {
             Log.i(TAG,"OnResume for mainactivity")
             makeConnection()
-            DataModel.makeAPICalls()
+            updateData()
         }
 
         super.onResume()
@@ -288,7 +306,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
                     DataModel.setConnString(data?.dataString!!, applicationContext)
 
                     makeConnection()
-                    DataModel.makeAPICalls()
+                    updateData()
                 }
             }
         }
