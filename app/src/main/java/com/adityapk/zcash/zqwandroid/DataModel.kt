@@ -27,8 +27,6 @@ object DataModel {
         transactions = null
     }
 
-    var secret : ByteArray? = null
-
     fun ByteArray.toHexString() : String {
         return (joinToString("") { String.format("%02x", it) })
     }
@@ -40,9 +38,6 @@ object DataModel {
 
     fun init() {
         val sodium = NaCl.sodium()
-
-        secret = ByteArray(Sodium.crypto_hash_sha256_bytes())
-        Sodium.crypto_hash_sha256(secret, "secret".toByteArray(), "secret".toByteArray().size)
 
         /*
         val message = "test".toByteArray()
@@ -149,7 +144,7 @@ object DataModel {
         val noncebin = nonceHex.hexStringToByteArray(Sodium.crypto_secretbox_noncebytes())
 
 
-        Sodium.crypto_secretbox_open_easy(decrypted, encbin, encsize, noncebin, secret);
+        Sodium.crypto_secretbox_open_easy(decrypted, encbin, encsize, noncebin, getSecret());
 
         val s = String(decrypted)
 
@@ -161,14 +156,15 @@ object DataModel {
         // Take the string, encrypt it and send it as the payload with the nonce in a Json string
         val msg = s.toByteArray()
 
-        check(secret != null)
+        check(getSecret() != null)
 
         val encrypted = ByteArray(msg.size + Sodium.crypto_secretbox_macbytes())
 
         // Increment nonce
         val localNonce = incAndGetLocalNonce()
+        println("Secret ${getSecret()?.toHexString()}")
 
-        val ret = Sodium.crypto_secretbox_easy(encrypted, msg, msg.size, localNonce, secret)
+        val ret = Sodium.crypto_secretbox_easy(encrypted, msg, msg.size, localNonce, getSecret())
         if (ret != 0) {
             println("Encryption failed")
         }
@@ -180,7 +176,7 @@ object DataModel {
     }
 
     fun checkAndUpdateRemoteNonce(remoteNonce: String) {
-        val settings = ZQWApp.appContext!!.getSharedPreferences("Nonce", 0)
+        val settings = ZQWApp.appContext!!.getSharedPreferences("Secret", 0)
         val prevNonceHex = settings.getString("remotenonce", "00".repeat(Sodium.crypto_secretbox_noncebytes()))
 
         // The problem is the nonces are hex encoded in little endian, but the BigDecimal contructor expects the nonces
@@ -194,7 +190,7 @@ object DataModel {
     }
 
     fun incAndGetLocalNonce() : ByteArray {
-        val settings = ZQWApp.appContext!!.getSharedPreferences("Nonce", 0)
+        val settings = ZQWApp.appContext!!.getSharedPreferences("Secret", 0)
         val nonceHex = settings.getString("localnonce", "00".repeat(Sodium.crypto_secretbox_noncebytes()))
 
         val nonce = nonceHex!!.hexStringToByteArray(Sodium.crypto_secretbox_noncebytes())
@@ -206,6 +202,32 @@ object DataModel {
         editor.apply()
 
         return nonce
+    }
+
+    fun getSecret() : ByteArray? {
+        val settings = ZQWApp.appContext!!.getSharedPreferences("Secret", 0)
+        val secretHex = settings.getString("secret", "")
+
+        if (secretHex.isNullOrEmpty()) {
+            return null;
+        }
+
+        return secretHex.hexStringToByteArray(Sodium.crypto_secretbox_keybytes())
+    }
+
+    fun setSecretHex(secretHex: String) {
+        if (getSecret()?.toHexString() == secretHex) {
+            return
+        }
+
+        val settings = ZQWApp.appContext!!.getSharedPreferences("Secret", 0)
+
+        val editor = settings.edit()
+        editor.putString("secret", secretHex)
+        editor.remove("localnonce")
+        editor.remove("remotenonce")
+        editor.apply()
+
     }
 
 

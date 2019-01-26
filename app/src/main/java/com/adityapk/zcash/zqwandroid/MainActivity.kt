@@ -311,11 +311,22 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
                     // Check to make sure that the result is an actual address
                     if (!(data?.dataString ?: "").startsWith("ws")) {
                         Toast.makeText(applicationContext,
-                            "${data?.dataString} is not a valid address", Toast.LENGTH_SHORT).show()
+                            "${data?.dataString} is not a valid connection string", Toast.LENGTH_SHORT).show()
                         return
                     }
 
-                    DataModel.setConnString(data?.dataString!!, applicationContext)
+                    val conComponents = data?.dataString?.split(",")
+                    if (conComponents?.size != 2) {
+                        Toast.makeText(applicationContext,
+                            "${data?.dataString} is not a valid connection string", Toast.LENGTH_SHORT).show()
+                        return
+                    }
+
+                    val conString = conComponents[0]
+                    val secretHex = conComponents[1]
+
+                    DataModel.setSecretHex(secretHex)
+                    DataModel.setConnString(conString, applicationContext)
 
                     makeConnection()
                     updateData()
