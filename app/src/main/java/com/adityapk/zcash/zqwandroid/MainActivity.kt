@@ -347,6 +347,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
 
         connStatus = ConnectionStatus.DISCONNECTED
         DataModel.ws?.close(1000, "Forcibly closing connection")
+        disconnected()
     }
 
     private inner class EchoWebSocketListener : WebSocketListener() {

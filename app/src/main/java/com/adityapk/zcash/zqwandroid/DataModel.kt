@@ -182,7 +182,6 @@ object DataModel {
 
         // Increment nonce
         val localNonce = incAndGetLocalNonce()
-        println("Secret ${getSecret()?.toHexString()}")
 
         val ret = Sodium.crypto_secretbox_easy(encrypted, msg, msg.size, localNonce, getSecret())
         if (ret != 0) {
