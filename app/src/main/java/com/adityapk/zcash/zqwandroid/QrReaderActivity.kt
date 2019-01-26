@@ -36,9 +36,10 @@ class QrReaderActivity : AppCompatActivity() {
         if (code == REQUEST_ADDRESS)
             txtQrCodeHelp.text = ""
 
+        lblErrorMsg.text = ""
+
         setupCamera()
     }
-
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         when (requestCode) {
@@ -87,7 +88,6 @@ class QrReaderActivity : AppCompatActivity() {
             finish()
         }
 
-
         barcodeDetector.setProcessor(object : Detector.Processor<Barcode> {
             override fun release() {}
 
@@ -103,11 +103,21 @@ class QrReaderActivity : AppCompatActivity() {
                         // See if this the data is of the right format
                         if (code == REQUEST_CONNDATA && !barcodeInfo.startsWith("ws")) {
                             Log.i(TAG, "Not a connection")
+                            var err = barcodeInfo
+                            if (err.length > 48) {
+                                err = err.substring(0, 22) + "...." + err.substring(err.length - 22, err.length)
+                            }
+                            lblErrorMsg.text = "\"$err\" is not a connection string"
                             return@runOnUiThread
                         }
 
                         if (code == REQUEST_ADDRESS && !DataModel.isValidAddress(StringBuilder(barcodeInfo ?: "").toString())) {
                             Log.i(TAG, "Not an address")
+                            var err = barcodeInfo
+                            if (err.length > 48) {
+                                err = err.substring(0, 22) + "...." + err.substring(err.length - 22, err.length)
+                            }
+                            lblErrorMsg.text = "\"$err\" is not a valid address"
                             return@runOnUiThread
                         }
 

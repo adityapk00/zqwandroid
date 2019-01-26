@@ -153,7 +153,8 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
                     swiperefresh.isRefreshing = false
 
                     // Hide the reconnect button if there is no connection string
-                    if (DataModel.getConnString(ZQWApp.appContext!!).isNullOrBlank()) {
+                    if (DataModel.getConnString(ZQWApp.appContext!!).isNullOrBlank() ||
+                        DataModel.getSecret() == null) {
                         btnReconnect.visibility = Button.GONE
                         lblConnectionOr.visibility = TextView.GONE
                     } else {

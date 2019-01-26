@@ -20,6 +20,10 @@ object DataModel {
     var mainResponseData : MainResponse? = null
     var transactions : List<TransactionItem> ?= null
 
+    fun isTestnet(): Boolean {
+        return mainResponseData?.tokenName != "ZEC"
+    }
+
     var ws : WebSocket? = null
 
     fun clear() {
@@ -118,15 +122,24 @@ object DataModel {
     }
 
     fun makeAPICalls() {
-        ws?.send(encrypt(json { obj("command" to "getInfo") }.toJsonString()))
-        ws?.send(encrypt(json { obj("command" to "getTransactions")}.toJsonString()))
+        if (getSecret() == null) {
+            // Connected, but we don't have a secret, so we can't actually connect.
+            ws?.close(1000, "No shared secret, can't connect")
+        } else {
+            ws?.send(encrypt(json { obj("command" to "getInfo") }.toJsonString()))
+            ws?.send(encrypt(json { obj("command" to "getTransactions") }.toJsonString()))
+        }
     }
 
 
     fun isValidAddress(a: String) : Boolean {
-        return  Regex("^z[a-z0-9]{77}$", RegexOption.IGNORE_CASE).matches(a) ||
-                Regex("^ztestsapling[a-z0-9]{76}", RegexOption.IGNORE_CASE).matches(a) ||
-                Regex("^t[a-z0-9]{34}$", RegexOption.IGNORE_CASE).matches(a)
+        return if (isTestnet()) {
+            Regex("^ztestsapling[a-z0-9]{76}", RegexOption.IGNORE_CASE).matches(a) ||
+                    Regex("^tm[a-z0-9]{33}$", RegexOption.IGNORE_CASE).matches(a)
+        } else {
+            Regex("^z[a-z0-9]{77}$", RegexOption.IGNORE_CASE).matches(a) ||
+                    Regex("^t[a-z0-9]{34}$", RegexOption.IGNORE_CASE).matches(a)
+        }
 
     }
 
@@ -209,7 +222,7 @@ object DataModel {
         val secretHex = settings.getString("secret", "")
 
         if (secretHex.isNullOrEmpty()) {
-            return null;
+            return null
         }
 
         return secretHex.hexStringToByteArray(Sodium.crypto_secretbox_keybytes())
