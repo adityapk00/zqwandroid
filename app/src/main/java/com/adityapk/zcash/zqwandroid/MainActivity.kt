@@ -342,6 +342,12 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         updateUI(true)
     }
 
+    private fun clearConnection() {
+        Log.i(TAG, "Clearing connection")
+
+        connStatus = ConnectionStatus.DISCONNECTED
+        DataModel.ws?.close(1000, "Forcibly closing connection")
+    }
 
     private inner class EchoWebSocketListener : WebSocketListener() {
 
@@ -352,8 +358,15 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
 
         override fun onMessage(webSocket: WebSocket?, text: String?) {
             Log.i(TAG, "Recieving $text")
-            updateUI(DataModel.parseResponse(text!!))
-            Log.i(TAG, "parsed successfully")
+
+            val r = DataModel.parseResponse(text!!)
+            if (r.error == null) {
+                updateUI(r.updateTxns)
+                Log.i(TAG, "parsed successfully")
+            } else {
+                Snackbar.make(layoutConnect, "Couldn't connect: ${r.error}", Snackbar.LENGTH_LONG).show()
+                clearConnection()
+            }
         }
 
         override fun onMessage(webSocket: WebSocket?, bytes: ByteString) {
@@ -369,11 +382,12 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
             Log.e(TAG,"Failed $t")
-            connStatus = ConnectionStatus.DISCONNECTED
+
             if (t is ConnectException) {
                 Snackbar.make(layoutConnect, t.localizedMessage, Snackbar.LENGTH_SHORT).show()
             }
-            disconnected()
+
+            clearConnection()
         }
     }
 

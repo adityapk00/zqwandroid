@@ -68,7 +68,9 @@ object DataModel {
         */
     }
 
-    fun parseResponse(response: String) : Boolean {
+    data class ParseResponse(val updateTxns: Boolean, val error: String?)
+
+    fun parseResponse(response: String) : ParseResponse {
         val json = Parser.default().parse(StringBuilder(response)) as JsonObject
 
         // Check if input string is encrypted
@@ -76,10 +78,15 @@ object DataModel {
             return parseResponse(decrypt(json["nonce"].toString(), json["payload"].toString()))
         }
 
+        // Check if it has errored out
+        if (json.containsKey("error")) {
+            return ParseResponse(false, json["error"].toString())
+        }
+
         return when (json.string("command")) {
             "getInfo" -> {
                 mainResponseData = Klaxon().parse<MainResponse>(response)
-                return false
+                return ParseResponse(false, null)
             }
             "getTransactions" -> {
                 transactions = json.array<JsonObject>("transactions").orEmpty().map { tx ->
@@ -92,9 +99,9 @@ object DataModel {
                         tx.string("txid") ?: "",
                         tx.long("confirmations") ?: 0)
                 }
-                return true
+                return ParseResponse(true, null)
             }
-            else -> false
+            else -> ParseResponse(false, null)
         }
     }
 
