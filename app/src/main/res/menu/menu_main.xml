@@ -10,5 +10,5 @@
     <item android:title="Refresh" android:id="@+id/action_refresh"
           compat:showAsAction="ifRoom"
 
-          android:icon="@android:drawable/ic_menu_directions"/>
+          android:icon="@drawable/refresh"/>
 </menu>

@@ -55,7 +55,7 @@
             android:layout_marginBottom="32dp"/>
     <ImageView
             android:layout_width="wrap_content"
-            android:layout_height="46dp" app:srcCompat="@mipmap/ic_launcher"
+            android:layout_height="46dp" app:srcCompat="@mipmap/logo_round"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" android:id="@+id/imageView3"
             app:layout_constraintHorizontal_bias="0.498"
@@ -96,14 +96,14 @@
 
         <ImageView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" app:srcCompat="@mipmap/ic_launcher"
+                android:layout_height="wrap_content" app:srcCompat="@mipmap/connect_round"
                 android:id="@+id/imageView5" app:layout_constraintTop_toTopOf="parent"
                 android:layout_marginTop="8dp"
-                app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp" app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintVertical_bias="0.22000003"/>
+                app:layout_constraintVertical_bias="0.22000003" app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="8dp"/>
         <Button
                 android:text="Scan QR Code"
                 android:layout_width="wrap_content"

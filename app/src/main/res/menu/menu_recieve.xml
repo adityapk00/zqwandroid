@@ -6,5 +6,5 @@
     <item android:id="@+id/action_share"
           android:title="Share"
           android:orderInCategory="100"
-          app:showAsAction="ifRoom" android:icon="@android:drawable/ic_menu_share"/>
+          app:showAsAction="ifRoom" android:icon="@drawable/shareicon"/>
 </menu>
