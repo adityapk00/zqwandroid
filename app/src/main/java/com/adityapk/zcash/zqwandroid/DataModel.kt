@@ -164,7 +164,7 @@ object DataModel {
         val noncebin = nonceHex.hexStringToByteArray(Sodium.crypto_secretbox_noncebytes())
 
 
-        Sodium.crypto_secretbox_open_easy(decrypted, encbin, encsize, noncebin, getSecret());
+        Sodium.crypto_secretbox_open_easy(decrypted, encbin, encsize, noncebin, getSecret())
 
         val s = String(decrypted)
 
@@ -173,8 +173,14 @@ object DataModel {
     }
 
     fun encrypt(s : String) : String {
+        // Pad to 256 bytes, to prevent leaking any info via size of the encrypted message
+        var inpStr = s
+        if (inpStr.length % 256 > 0) {
+            inpStr += " ".repeat(256 - (inpStr.length % 256))
+        }
+
         // Take the string, encrypt it and send it as the payload with the nonce in a Json string
-        val msg = s.toByteArray()
+        val msg = inpStr.toByteArray()
 
         check(getSecret() != null)
 
