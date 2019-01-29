@@ -86,6 +86,9 @@ object DataModel {
         return when (json.string("command")) {
             "getInfo" -> {
                 mainResponseData = Klaxon().parse<MainResponse>(response)
+
+                // Call the next API call
+                ws?.send(encrypt(json { obj("command" to "getTransactions") }.toJsonString()))
                 return ParseResponse(false, null)
             }
             "getTransactions" -> {
@@ -133,8 +136,9 @@ object DataModel {
             // Connected, but we don't have a secret, so we can't actually connect.
             ws?.close(1000, "No shared secret, can't connect")
         } else {
+            // We make only the first API call here. The subsequent ones are made in processMessage(), when this
+            // call returns a reply
             ws?.send(encrypt(json { obj("command" to "getInfo") }.toJsonString()))
-            ws?.send(encrypt(json { obj("command" to "getTransactions") }.toJsonString()))
         }
     }
 
@@ -154,7 +158,7 @@ object DataModel {
         // Decrypt the hex string into a regular string and return
 
         // First make sure the remote nonce is valid
-        checkAndUpdateRemoteNonce(nonceHex);
+        checkAndUpdateRemoteNonce(nonceHex)
 
         val encsize = encHex.length / 2
         val encbin = encHex.hexStringToByteArray(encHex.length / 2)
@@ -163,10 +167,7 @@ object DataModel {
 
         val noncebin = nonceHex.hexStringToByteArray(Sodium.crypto_secretbox_noncebytes())
 
-
         Sodium.crypto_secretbox_open_easy(decrypted, encbin, encsize, noncebin, getSecret())
-
-        val s = String(decrypted)
 
         println("Decrypted to: ${String(decrypted)}")
         return String(decrypted)

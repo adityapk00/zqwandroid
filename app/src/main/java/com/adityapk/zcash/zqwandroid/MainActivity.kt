@@ -307,7 +307,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         when(requestCode) {
             QrReaderActivity.REQUEST_CONNDATA -> {
                 if (resultCode == Activity.RESULT_OK) {
-                    Log.i(TAG, "Main Activity got result for QrCode")
+                    Log.i(TAG, "Main Activity got result for QrCode: ${data?.dataString}")
 
                     // Check to make sure that the result is an actual address
                     if (!(data?.dataString ?: "").startsWith("ws")) {
@@ -338,6 +338,9 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
 
     private fun disconnected() {
         Log.i(TAG, "Disconnected")
+
+        connStatus = ConnectionStatus.DISCONNECTED
+
         DataModel.clear()
         updateUI(true)
     }
@@ -345,8 +348,12 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
     private fun clearConnection() {
         Log.i(TAG, "Clearing connection")
 
-        connStatus = ConnectionStatus.DISCONNECTED
         DataModel.ws?.close(1000, "Forcibly closing connection")
+
+        // If the server returned an error, we need to clear out the connection,
+        // forcing a reconnection
+        DataModel.setConnString(null, applicationContext)
+
         disconnected()
     }
 
@@ -358,7 +365,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         }
 
         override fun onMessage(webSocket: WebSocket?, text: String?) {
-            Log.i(TAG, "Recieving $text")
+            Log.i(TAG, "Receiving $text")
 
             val r = DataModel.parseResponse(text!!)
             if (r.error == null) {
@@ -388,7 +395,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
                 Snackbar.make(layoutConnect, t.localizedMessage, Snackbar.LENGTH_SHORT).show()
             }
 
-            clearConnection()
+            disconnected();
         }
     }
 
