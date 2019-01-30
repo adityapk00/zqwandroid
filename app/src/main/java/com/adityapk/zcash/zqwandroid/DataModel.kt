@@ -158,7 +158,10 @@ object DataModel {
         // Decrypt the hex string into a regular string and return
 
         // First make sure the remote nonce is valid
-        checkAndUpdateRemoteNonce(nonceHex)
+        if (!checkRemoteNonce(nonceHex)) {
+            // TODO: How to handle remote nonce errors?
+            return ""
+        }
 
         val encsize = encHex.length / 2
         val encbin = encHex.hexStringToByteArray(encHex.length / 2)
@@ -167,9 +170,14 @@ object DataModel {
 
         val noncebin = nonceHex.hexStringToByteArray(Sodium.crypto_secretbox_noncebytes())
 
-        Sodium.crypto_secretbox_open_easy(decrypted, encbin, encsize, noncebin, getSecret())
+        val result = Sodium.crypto_secretbox_open_easy(decrypted, encbin, encsize, noncebin, getSecret())
+        if (result != 0) {
+            // TODO: Handle decryption errors?
+            return ""
+        }
 
         println("Decrypted to: ${String(decrypted)}")
+        updateRemoteNonce(nonceHex)
         return String(decrypted)
     }
 
@@ -201,15 +209,19 @@ object DataModel {
         return j.toJsonString()
     }
 
-    fun checkAndUpdateRemoteNonce(remoteNonce: String) {
+    fun checkRemoteNonce(remoteNonce: String): Boolean {
         val settings = ZQWApp.appContext!!.getSharedPreferences("Secret", 0)
-        val prevNonceHex = settings.getString("remotenonce", "00".repeat(Sodium.crypto_secretbox_noncebytes()))
+        val prevNonceHex = settings.getString("remotenonce", "00".repeat(Sodium.crypto_secretbox_noncebytes()))!!
 
         // The problem is the nonces are hex encoded in little endian, but the BigDecimal contructor expects the nonces
         // in big endian format. So flip the endian-ness of the hex strings for comparision
 
-        check(BigInteger(remoteNonce.chunked(2).reversed().joinToString(""), 16) > BigInteger(prevNonceHex.chunked(2).reversed().joinToString(""), 16))
+        return BigInteger(remoteNonce.chunked(2).reversed().joinToString(""),16) >
+                BigInteger(prevNonceHex.chunked(2).reversed().joinToString(""), 16)
+    }
 
+    fun updateRemoteNonce(remoteNonce: String) {
+        val settings = ZQWApp.appContext!!.getSharedPreferences("Secret", 0)
         val editor = settings.edit()
         editor.putString("remotenonce", remoteNonce)
         editor.apply()
