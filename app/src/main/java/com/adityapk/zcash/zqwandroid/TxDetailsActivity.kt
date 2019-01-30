@@ -68,9 +68,14 @@ class TxDetailsActivity : AppCompatActivity() {
 
                 finish()
             } else {
+                val uri = if (DataModel.isTestnet()) {
+                    "https://explorer.testnet.z.cash/tx/"
+                } else {
+                    "https://explorer.zcha.in/transactions/"
+                } + tx?.txid
                 val browserIntent = Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse("https://explorer.zcha.in/transactions/${tx?.txid}")
+                    Uri.parse(uri)
                 )
                 startActivity(browserIntent)
             }

@@ -9,138 +9,158 @@
         tools:showIn="@layout/activity_send"
         tools:context=".SendActivity">
 
-    <android.support.constraint.ConstraintLayout
+    <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/toLayout"
-            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="16dp" android:layout_marginStart="16dp"
-            app:layout_constraintBottom_toTopOf="@id/AmountLayout"
-            android:layout_marginBottom="8dp" app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="16dp"
-    >
-        <TextView
-                android:text="To"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="parent"
-                android:id="@+id/textView7"
-                tools:layout_conversion_absoluteHeight="19dp"
-                tools:layout_conversion_absoluteWidth="16dp" android:layout_marginTop="8dp"
-                app:layout_constraintTop_toTopOf="parent" android:layout_marginStart="8dp"
-                android:textColor="@color/colorPrimary"/>
-        <EditText
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:inputType="textNoSuggestions|text"
-                android:ems="10"
-                android:id="@+id/sendAddress"
-                app:layout_constraintEnd_toStartOf="@+id/imageButton"
-                app:layout_constraintHorizontal_chainStyle="spread_inside" tools:layout_conversion_absoluteHeight="45dp"
-                tools:layout_conversion_absoluteWidth="0dp" app:layout_constraintTop_toBottomOf="@+id/textView7"
-                android:layout_marginTop="16dp"
-                app:layout_constraintStart_toStartOf="parent" android:fontFamily="monospace" android:singleLine="true"
-                android:selectAllOnFocus="true" android:textIsSelectable="true" android:hint="Address"
-                android:textSize="14sp" android:ellipsize="middle" android:textColor="@android:color/background_dark"/>
-        <ImageButton
-                android:layout_width="37dp"
-                android:layout_height="41dp" app:srcCompat="@android:drawable/ic_menu_camera"
-                android:id="@+id/imageButton"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView7" tools:layout_conversion_absoluteHeight="51dp"
-                tools:layout_conversion_absoluteWidth="56dp" android:layout_marginTop="16dp"
-                android:background="@android:color/transparent"/>
-        <TextView
-                android:text="Valid Address"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/txtValidAddress" android:layout_marginEnd="16dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:textColor="@color/colorPrimary" android:layout_marginTop="8dp"
-                app:layout_constraintTop_toTopOf="parent" app:layout_constraintBaseline_toBaselineOf="@+id/textView7"
-                android:textAlignment="textEnd"/>
-    </android.support.constraint.ConstraintLayout>
-    <android.support.constraint.ConstraintLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" android:id="@+id/AmountLayout"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            app:layout_constraintBottom_toTopOf="@id/MemoLayout" app:layout_constraintTop_toBottomOf="@id/toLayout"
-            android:background="@drawable/layout_bg">
-        <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" app:layout_constraintTop_toTopOf="parent"
-                android:id="@+id/amountUSD"
-                app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
-                android:textSize="36sp"
-                app:layout_constraintBottom_toTopOf="@+id/amountZEC"
-                android:layout_marginTop="16dp" android:hint="$ 0.00"
-                android:textAlignment="center" android:singleLine="true" android:selectAllOnFocus="true"
-                android:inputType="numberDecimal" android:maxLength="14"
-                android:textColor="@android:color/background_dark"/>
-        <TextView
-                android:text="ZEC 0.0"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
-                android:id="@+id/amountZEC"
-                app:layout_constraintTop_toBottomOf="@+id/amountUSD"
-                app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="16dp"/>
-        <TextView
-                android:text="Amount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/textView8" app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginStart="8dp" app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginTop="8dp" android:textColor="@color/colorPrimary"/>
-        <TextView
-                android:text="$"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/txtSendCurrencySymbol" app:layout_constraintEnd_toStartOf="@+id/amountUSD"
-                android:textSize="36sp" android:layout_marginTop="26dp"
-                app:layout_constraintTop_toTopOf="parent" android:textColor="@android:color/background_dark"/>
-    </android.support.constraint.ConstraintLayout>
-    <android.support.constraint.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="218dp"
-            android:id="@+id/MemoLayout" android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/AmountLayout" app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
-            android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/btnSend">
-        <EditText
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:inputType="textMultiLine"
-                android:ems="10"
-                android:id="@+id/txtSendMemo" android:layout_marginTop="8dp"
-                app:layout_constraintTop_toBottomOf="@+id/txtSendMemoTitle" android:layout_marginStart="8dp"
-                app:layout_constraintStart_toStartOf="parent" android:layout_marginEnd="8dp"
-                app:layout_constraintEnd_toEndOf="parent" android:layout_marginBottom="8dp"
-                app:layout_constraintBottom_toBottomOf="parent" android:singleLine="true"
-                android:selectAllOnFocus="true" android:maxLength="512"
-                android:textColor="@android:color/background_dark"/>
-        <TextView
-                android:text=" Memo (Optional)"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent" android:layout_marginTop="16dp"
-                android:layout_marginStart="8dp" android:id="@+id/txtSendMemoTitle" android:textColor="@color/colorPrimary"/>
-        <TextView
-                android:text="0 / 512"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/txtMemoSize" android:layout_marginEnd="8dp" app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBaseline_toBaselineOf="@+id/txtSendMemoTitle"/>
-    </android.support.constraint.ConstraintLayout>
-    <Button
-            android:text="Send"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
-            android:id="@+id/btnSend" android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/MemoLayout" android:background="@color/colorAccent"
-            android:textColor="@android:color/white"/>
+            android:layout_height="match_parent">
+        <android.support.constraint.ConstraintLayout android:layout_width="match_parent"
+                                                     android:layout_height="wrap_content"
+                                                     android:orientation="vertical" android:id="@+id/linearLayout3">
+            <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/toLayout"
+                    app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_marginEnd="16dp" android:layout_marginStart="16dp"
+                    app:layout_constraintBottom_toTopOf="@id/AmountLayout"
+                    android:layout_marginBottom="8dp" app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginTop="16dp"
+            >
+                <TextView
+                        android:text="To"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintStart_toStartOf="parent"
+                        android:id="@+id/textView7"
+                        tools:layout_conversion_absoluteHeight="19dp"
+                        tools:layout_conversion_absoluteWidth="16dp" android:layout_marginTop="8dp"
+                        app:layout_constraintTop_toTopOf="parent" android:layout_marginStart="8dp"
+                        android:textColor="@color/colorPrimary"/>
+                <EditText
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:inputType="textNoSuggestions|text"
+                        android:ems="10"
+                        android:id="@+id/sendAddress"
+                        app:layout_constraintEnd_toStartOf="@+id/imageButton"
+                        app:layout_constraintHorizontal_chainStyle="spread_inside"
+                        tools:layout_conversion_absoluteHeight="45dp"
+                        tools:layout_conversion_absoluteWidth="0dp" app:layout_constraintTop_toBottomOf="@+id/textView7"
+                        android:layout_marginTop="16dp"
+                        app:layout_constraintStart_toStartOf="parent" android:fontFamily="monospace"
+                        android:singleLine="true"
+                        android:selectAllOnFocus="true" android:textIsSelectable="true" android:hint="Address"
+                        android:textSize="14sp" android:ellipsize="middle"
+                        android:textColor="@android:color/background_dark"/>
+                <ImageButton
+                        android:layout_width="37dp"
+                        android:layout_height="41dp" app:srcCompat="@android:drawable/ic_menu_camera"
+                        android:id="@+id/imageButton"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/textView7"
+                        tools:layout_conversion_absoluteHeight="51dp"
+                        tools:layout_conversion_absoluteWidth="56dp" android:layout_marginTop="16dp"
+                        android:background="@android:color/transparent"/>
+                <TextView
+                        android:text="Valid Address"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/txtValidAddress" android:layout_marginEnd="16dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:textColor="@color/colorPrimary" android:layout_marginTop="8dp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBaseline_toBaselineOf="@+id/textView7"
+                        android:textAlignment="textEnd"/>
+            </android.support.constraint.ConstraintLayout>
+            <android.support.constraint.ConstraintLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" android:id="@+id/AmountLayout"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    app:layout_constraintBottom_toTopOf="@id/MemoLayout"
+                    app:layout_constraintTop_toBottomOf="@id/toLayout"
+                    android:background="@drawable/layout_bg">
+                <EditText
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" app:layout_constraintTop_toTopOf="parent"
+                        android:id="@+id/amountUSD"
+                        app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
+                        android:textSize="36sp"
+                        app:layout_constraintBottom_toTopOf="@+id/amountZEC"
+                        android:layout_marginTop="16dp" android:hint="$ 0.00"
+                        android:textAlignment="center" android:singleLine="true" android:selectAllOnFocus="true"
+                        android:inputType="numberDecimal" android:maxLength="14"
+                        android:textColor="@android:color/background_dark"/>
+                <TextView
+                        android:text="ZEC 0.0"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+                        android:id="@+id/amountZEC"
+                        app:layout_constraintTop_toBottomOf="@+id/amountUSD"
+                        app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="16dp"/>
+                <TextView
+                        android:text="Amount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/textView8" app:layout_constraintStart_toStartOf="parent"
+                        android:layout_marginStart="8dp" app:layout_constraintTop_toTopOf="parent"
+                        android:layout_marginTop="8dp" android:textColor="@color/colorPrimary"/>
+                <TextView
+                        android:text="$"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/txtSendCurrencySymbol" app:layout_constraintEnd_toStartOf="@+id/amountUSD"
+                        android:textSize="36sp" android:layout_marginTop="26dp"
+                        app:layout_constraintTop_toTopOf="parent" android:textColor="@android:color/background_dark"/>
+            </android.support.constraint.ConstraintLayout>
+            <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="218dp"
+                    android:id="@+id/MemoLayout" android:layout_marginTop="8dp"
+                    app:layout_constraintTop_toBottomOf="@id/AmountLayout" app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="8dp"
+                    app:layout_constraintBottom_toTopOf="@+id/btnSend">
+                <EditText
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:inputType="textMultiLine"
+                        android:ems="10"
+                        android:id="@+id/txtSendMemo" android:layout_marginTop="8dp"
+                        app:layout_constraintTop_toBottomOf="@+id/txtSendMemoTitle" android:layout_marginStart="8dp"
+                        app:layout_constraintStart_toStartOf="parent" android:layout_marginEnd="8dp"
+                        app:layout_constraintEnd_toEndOf="parent" android:layout_marginBottom="8dp"
+                        app:layout_constraintBottom_toBottomOf="parent" android:singleLine="false"
+                        android:selectAllOnFocus="false" android:maxLength="512"
+                        android:textColor="@android:color/background_dark"/>
+                <TextView
+                        android:text=" Memo (Optional)"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" android:layout_marginTop="16dp"
+                        android:layout_marginStart="8dp" android:id="@+id/txtSendMemoTitle"
+                        android:textColor="@color/colorPrimary"/>
+                <TextView
+                        android:text="0 / 512"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/txtMemoSize" android:layout_marginEnd="8dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintBaseline_toBaselineOf="@+id/txtSendMemoTitle"/>
+            </android.support.constraint.ConstraintLayout>
+            <Button
+                    android:text="Send"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+                    android:id="@+id/btnSend"
+                    app:layout_constraintTop_toBottomOf="@+id/MemoLayout" android:background="@color/colorAccent"
+                    android:textColor="@android:color/white" tools:layout_conversion_absoluteHeight="48dp"
+                    tools:layout_editor_absoluteY="8dp" tools:layout_editor_absoluteX="0dp"
+                    tools:layout_conversion_absoluteWidth="88dp"/>
+        </android.support.constraint.ConstraintLayout>
+    </ScrollView>
 </android.support.constraint.ConstraintLayout>

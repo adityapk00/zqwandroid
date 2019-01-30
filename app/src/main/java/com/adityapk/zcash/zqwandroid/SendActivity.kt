@@ -10,6 +10,7 @@ import android.os.Handler
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.text.*
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import com.beust.klaxon.Klaxon
@@ -56,11 +57,11 @@ class SendActivity : AppCompatActivity() {
                 }
 
                 if (s?.startsWith("t") == true) {
-                    txtSendMemo.inputType = InputType.TYPE_NULL
+                    txtSendMemo.isEnabled = false
                     txtSendMemo.text = SpannableStringBuilder("")
                     txtSendMemoTitle.text = "(No Memo for t-Addresses)"
                 } else {
-                    txtSendMemo.inputType = InputType.TYPE_TEXT_FLAG_MULTI_LINE
+                    txtSendMemo.isEnabled = true
                     txtSendMemoTitle.text = "Memo (Optional)"
                 }
             }
@@ -87,6 +88,9 @@ class SendActivity : AppCompatActivity() {
                     amountZEC.text = "${DataModel.mainResponseData?.tokenName} " + DecimalFormat("#.########").format(usd / zprice)
             }
         })
+
+        txtSendMemo.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        txtSendMemo.setRawInputType(InputType.TYPE_CLASS_TEXT);
 
         txtSendMemo.addTextChangedListener(object: TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
