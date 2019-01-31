@@ -120,6 +120,10 @@ class SendActivity : AppCompatActivity() {
                 showErrorDialog("Invalid amount!")
                 return@setOnClickListener
             }
+            if (parsedAmt.toDouble() > DataModel.mainResponseData?.maxspendable ?: 0.0) {
+                showErrorDialog("Can't spend more than ${DataModel.mainResponseData?.maxspendable} in a single Tx")
+                return@setOnClickListener
+            }
 
             val memo = txtSendMemo.text.toString()
             if (memo.length > 512) {
@@ -131,6 +135,7 @@ class SendActivity : AppCompatActivity() {
                 showErrorDialog("Can't send a memo to a t-Address")
                 return@setOnClickListener
             }
+
 
             val intent = Intent(this, TxDetailsActivity::class.java)
             val tx = DataModel.TransactionItem("confirm", 0, parsedAmt, memo,

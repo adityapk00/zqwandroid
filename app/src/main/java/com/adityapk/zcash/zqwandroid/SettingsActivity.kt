@@ -20,5 +20,8 @@ class SettingsActivity : AppCompatActivity() {
 
     fun updateUI() {
         txtSettingsConnString.text = DataModel.getConnString(ZQWApp.appContext!!) ?: "Not Connected"
+
+        lblVersionName.text = BuildConfig.VERSION_NAME
+        lblServerVersion.text = DataModel.mainResponseData?.serverversion ?: "Not Connected"
     }
 }
