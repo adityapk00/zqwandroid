@@ -138,7 +138,8 @@ object DataModel {
         } else {
             // We make only the first API call here. The subsequent ones are made in processMessage(), when this
             // call returns a reply
-            ws?.send(encrypt(json { obj("command" to "getInfo") }.toJsonString()))
+            val phoneName = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}"
+            ws?.send(encrypt(json { obj("command" to "getInfo", "name" to phoneName) }.toJsonString()))
         }
     }
 
