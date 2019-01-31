@@ -6,7 +6,7 @@ ZecQT Android is currently in beta, and to participate in the beta program, you 
 ### Run the custom version of zec-qt-wallet
 In order to let your Android phone connect to your desktop, you need to run a special version of zec-qt-wallet. You can download it from the [releases page](https://github.com/adityapk00/zqwandroid/releases) and run the binary for your platform. Note that the regular version of zec-qt-wallet doesn't let you connect your Android phone.
 
-* You can run your regular version of zcashd or let zec-qt-wallet run its embedded zcashd
+* You can run your standard version of `zcashd` or let `zec-qt-wallet` run its embedded zcashd
 * Although everything will work fine on Mainnet, since this is beta software, I recommend you run it on the zcash testnet. Add `testnet=1` into your `zcash.conf` to enable the testnet
 
 After your node is synced, go to `Apps -> Connect Mobile App` to view the connection QR Code
