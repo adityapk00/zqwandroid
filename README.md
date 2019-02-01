@@ -16,12 +16,13 @@ You'll need to allow `Install from untrusted sources` on your Android phone to i
 
 After you download and install the APK, launch the program and scan the QR Code from your desktop to connect the two. 
 
-### When you run into bugs, issues or have feature requests
-Please file send me all the feedback you can. You can file issues in the [issues tab](https://github.com/adityapk00/zqwandroid/issues). 
-
 #### Currently known limitations
+* Both your phone and desktop need to be on the same network for the connection to work (i.e., It won't work over VPNs or over LTE/3G). 
 * Old-style Sprout addresses are not supported
 * You can't select which address to _send from_. zec-qt-wallet will try to send Transactions from a Sapling address, given you have enough balance
 * You can't generate new z-addrs or t-addrs from the phone. 
 
 
+
+### When you run into bugs, issues or have feature requests
+Please file send me all the feedback you can. You can file issues in the [issues tab](https://github.com/adityapk00/zqwandroid/issues). 
