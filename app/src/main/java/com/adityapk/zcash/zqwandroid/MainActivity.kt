@@ -336,13 +336,17 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         }
     }
 
-    private fun disconnected() {
+    private fun disconnected(reason: String? = null) {
         Log.i(TAG, "Disconnected")
 
         connStatus = ConnectionStatus.DISCONNECTED
 
         DataModel.clear()
         updateUI(true)
+
+        if (!reason.isNullOrEmpty()) {
+            Snackbar.make(layoutConnect, "Server says: ${reason}", Snackbar.LENGTH_LONG).show()
+        }
     }
 
     private fun clearConnection() {
@@ -385,7 +389,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
             webSocket.close(1000, null)
             connStatus = ConnectionStatus.DISCONNECTED
             Log.i(TAG,"Closing : $code / $reason")
-            disconnected()
+            disconnected(reason)
         }
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
@@ -395,7 +399,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
                 Snackbar.make(layoutConnect, t.localizedMessage, Snackbar.LENGTH_SHORT).show()
             }
 
-            disconnected();
+            disconnected()
         }
     }
 
