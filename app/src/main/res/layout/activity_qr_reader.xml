@@ -11,7 +11,7 @@
 
     <SurfaceView
             android:layout_width="0dp"
-            android:layout_height="442dp"
+            android:layout_height="400dp"
             android:id="@+id/camera_view"
             app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>

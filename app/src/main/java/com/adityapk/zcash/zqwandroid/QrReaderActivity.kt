@@ -59,7 +59,7 @@ class QrReaderActivity : AppCompatActivity() {
         val barcodeDetector = BarcodeDetector.Builder(this).setBarcodeFormats(Barcode.QR_CODE).build()
         val cameraSource = CameraSource.Builder(this, barcodeDetector)
                                 .setAutoFocusEnabled(true)
-                                .setRequestedPreviewSize(640, 480)
+                                .setRequestedPreviewSize(600, 100)
                                 .build()
 
 
@@ -70,6 +70,12 @@ class QrReaderActivity : AppCompatActivity() {
                         ActivityCompat.requestPermissions(this@QrReaderActivity, arrayOf(android.Manifest.permission.CAMERA), 50)
                     } else {
                         cameraSource.start(cameraView.holder)
+
+                        val w = cameraView.width
+                        val scale = cameraSource.previewSize.width.toDouble() / cameraSource.previewSize.height.toDouble()
+
+                        cameraView.layout(0, 0, w, (w.toDouble() / scale).toInt())
+                        println("Preview size: ${cameraSource.previewSize}")
                     }
                 } catch (ie: IOException) {
                     Log.e("CAMERA SOURCE", ie.message)
