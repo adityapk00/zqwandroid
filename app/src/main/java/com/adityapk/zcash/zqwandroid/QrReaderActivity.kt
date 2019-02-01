@@ -59,7 +59,7 @@ class QrReaderActivity : AppCompatActivity() {
         val barcodeDetector = BarcodeDetector.Builder(this).setBarcodeFormats(Barcode.QR_CODE).build()
         val cameraSource = CameraSource.Builder(this, barcodeDetector)
                                 .setAutoFocusEnabled(true)
-                                .setRequestedPreviewSize(600, 100)
+                                .setRequestedPreviewSize(640, 480)
                                 .build()
 
 
