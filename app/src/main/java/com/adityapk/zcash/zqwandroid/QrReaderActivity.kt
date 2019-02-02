@@ -72,9 +72,12 @@ class QrReaderActivity : AppCompatActivity() {
                         cameraSource.start(cameraView.holder)
 
                         val w = cameraView.width
+                        val h = cameraView.height
                         val scale = cameraSource.previewSize.width.toDouble() / cameraSource.previewSize.height.toDouble()
 
-                        cameraView.layout(0, 0, w, (w.toDouble() / scale).toInt())
+                        val scaleWidth = (h.toDouble() / scale).toInt()
+
+                        cameraView.layout((w - scaleWidth)/2, 0, scaleWidth , h)
                         println("Preview size: ${cameraSource.previewSize}")
                     }
                 } catch (ie: IOException) {
