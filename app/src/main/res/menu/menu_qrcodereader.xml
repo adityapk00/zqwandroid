@@ -2,9 +2,9 @@
       xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools"
       xmlns:compat="http://schemas.android.com/apk/res-auto"
-      tools:context="com.adityapk.zcash.zqwandroid.ReceiveActivity">
-    <item android:id="@+id/action_share"
-          android:title="Share"
+      tools:context="com.adityapk.zcash.zqwandroid.QrReaderActivity">
+    <item android:id="@+id/action_manual_input"
+          android:title="Manual Input"
           android:orderInCategory="100"
-          app:showAsAction="ifRoom" android:icon="@drawable/shareicon"/>
+          app:showAsAction="ifRoom" android:icon="@drawable/ic_keyboard_icon"/>
 </menu>

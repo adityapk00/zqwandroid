@@ -47,7 +47,7 @@
             android:id="@+id/lblErrorMsg"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="8dp" android:textAlignment="center" android:textColor="@color/colorPrimary"
+            android:layout_marginEnd="8dp" android:textAlignment="center" android:textColor="@color/colorAccent"
             android:layout_marginBottom="32dp"
             app:layout_constraintBottom_toBottomOf="parent"/>
 </android.support.constraint.ConstraintLayout>

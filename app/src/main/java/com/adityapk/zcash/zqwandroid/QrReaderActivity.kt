@@ -9,6 +9,8 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import com.google.android.gms.vision.CameraSource
@@ -17,6 +19,13 @@ import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
 import kotlinx.android.synthetic.main.activity_qr_reader.*
 import java.io.IOException
+import android.R.string.cancel
+import android.app.AlertDialog
+import android.content.DialogInterface
+import android.text.InputType
+import android.widget.EditText
+
+
 
 class QrReaderActivity : AppCompatActivity() {
 
@@ -24,7 +33,6 @@ class QrReaderActivity : AppCompatActivity() {
         const val REQUEST_ADDRESS = 1
         const val REQUEST_CONNDATA = 2
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,7 +61,41 @@ class QrReaderActivity : AppCompatActivity() {
         }
     }
 
-    fun setupCamera() {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.menu_qrcodereader, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_manual_input -> {
+                val builder = AlertDialog.Builder(this)
+                builder.setTitle("Paste the code here manually")
+
+                // Set up the input
+                val input = EditText(this)
+                // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+                input.inputType = InputType.TYPE_CLASS_TEXT
+                builder.setView(input)
+
+                // Set up the buttons
+                builder.setPositiveButton("OK") { dialog, which ->
+                    run {
+                        val txt = input.text.toString()
+                        processText(txt)
+                    }
+                }
+                builder.setNegativeButton("Cancel") { dialog, which -> dialog.cancel() }
+
+                builder.create().show()
+                return true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun setupCamera() {
         val cameraView = findViewById<SurfaceView>(R.id.camera_view)
 
         val barcodeDetector = BarcodeDetector.Builder(this).setBarcodeFormats(Barcode.QR_CODE).build()
@@ -102,44 +144,45 @@ class QrReaderActivity : AppCompatActivity() {
 
             override fun receiveDetections(detections: Detector.Detections<Barcode>) {
                 val barcodes = detections.detectedItems
-
-                val code = intent.getIntExtra("REQUEST_CODE", 0)
-
                 if (barcodes.size() != 0) {
                     runOnUiThread {
                         val barcodeInfo = barcodes.valueAt(0).displayValue
-
-                        // See if this the data is of the right format
-                        if (code == REQUEST_CONNDATA && !barcodeInfo.startsWith("ws")) {
-                            Log.i(TAG, "Not a connection")
-                            var err = barcodeInfo
-                            if (err.length > 48) {
-                                err = err.substring(0, 22) + "...." + err.substring(err.length - 22, err.length)
-                            }
-                            lblErrorMsg.text = "\"$err\" is not a connection string"
-                            return@runOnUiThread
-                        }
-
-                        if (code == REQUEST_ADDRESS && !DataModel.isValidAddress(StringBuilder(barcodeInfo ?: "").toString())) {
-                            Log.i(TAG, "Not an address")
-                            var err = barcodeInfo
-                            if (err.length > 48) {
-                                err = err.substring(0, 22) + "...." + err.substring(err.length - 22, err.length)
-                            }
-                            lblErrorMsg.text = "\"$err\" is not a valid address"
-                            return@runOnUiThread
-                        }
-
-                        // The data seems valid, so return it.
-                        val data = Intent()
-                        data.data = Uri.parse(barcodes.valueAt(0).displayValue)
-                        setResult(Activity.RESULT_OK, data)
-                        finish()
+                        processText(barcodeInfo)
                     }
-
                 }
             }
         })
+    }
+
+    private fun processText(barcodeInfo: String) {
+        val code = intent.getIntExtra("REQUEST_CODE", 0)
+
+        // See if this the data is of the right format
+        if (code == REQUEST_CONNDATA && !barcodeInfo.startsWith("ws")) {
+            Log.i(TAG, "Not a connection")
+            var err = barcodeInfo
+            if (err.length > 48) {
+                err = err.substring(0, 22) + "...." + err.substring(err.length - 22, err.length)
+            }
+            lblErrorMsg.text = "\"$err\" is not a connection string"
+            return
+        }
+
+        if (code == REQUEST_ADDRESS && !DataModel.isValidAddress(StringBuilder(barcodeInfo ?: "").toString())) {
+            Log.i(TAG, "Not an address")
+            var err = barcodeInfo
+            if (err.length > 48) {
+                err = err.substring(0, 22) + "...." + err.substring(err.length - 22, err.length)
+            }
+            lblErrorMsg.text = "\"$err\" is not a valid address"
+            return
+        }
+
+        // The data seems valid, so return it.
+        val data = Intent()
+        data.data = Uri.parse(barcodeInfo)
+        setResult(Activity.RESULT_OK, data)
+        finish()
     }
 
     private val TAG = "QrReader"
