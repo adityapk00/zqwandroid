@@ -47,8 +47,7 @@ object DataModel {
         val sodium = NaCl.sodium()
     }
 
-    data class ParseResponse(val updateTxns: Boolean, val error: String?)
-
+    data class ParseResponse(val updateTxns: Boolean = false, val displayMsg: String? = null, val doDisconnect: Boolean = false)
     fun parseResponse(response: String) : ParseResponse {
         val json = Parser.default().parse(StringBuilder(response)) as JsonObject
 
@@ -58,8 +57,8 @@ object DataModel {
         }
 
         // Check if it has errored out
-        if (json.containsKey("error")) {
-            return ParseResponse(false, json["error"].toString())
+        if (json.containsKey("displayMsg")) {
+            return ParseResponse(false, "Couldn't connect: ${json["displayMsg"].toString()}")
         }
 
         return when (json.string("command")) {
@@ -68,7 +67,7 @@ object DataModel {
 
                 // Call the next API call
                 ws?.send(encrypt(json { obj("command" to "getTransactions") }.toJsonString()))
-                return ParseResponse(false, null)
+                return ParseResponse()
             }
             "getTransactions" -> {
                 transactions = json.array<JsonObject>("transactions").orEmpty().map { tx ->
@@ -81,9 +80,20 @@ object DataModel {
                         tx.string("txid") ?: "",
                         tx.long("confirmations") ?: 0)
                 }
-                return ParseResponse(true, null)
+                return ParseResponse(true)
             }
-            else -> ParseResponse(false, null)
+            "sendTxSubmitted" -> {
+                val txid = json.string("txid")
+                return ParseResponse(false, "Tx submitted: $txid")
+            }
+            "sendTxFailed" -> {
+                val err = json.string("err")
+                return ParseResponse(false, "Tx displayMsg: $err")
+            }
+            else -> {
+                Log.e(TAG, "Unknown command ${json.string("command")}")
+                return ParseResponse()
+            }
         }
     }
 

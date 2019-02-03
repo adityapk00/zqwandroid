@@ -302,7 +302,6 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         super.onResume()
     }
 
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when(requestCode) {
             QrReaderActivity.REQUEST_CONNDATA -> {
@@ -354,7 +353,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
 
         DataModel.ws?.close(1000, "Forcibly closing connection")
 
-        // If the server returned an error, we need to clear out the connection,
+        // If the server returned an displayMsg, we need to clear out the connection,
         // forcing a reconnection
         DataModel.setConnString(null, applicationContext)
 
@@ -372,13 +371,13 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
             Log.i(TAG, "Receiving $text")
 
             val r = DataModel.parseResponse(text!!)
-            if (r.error == null) {
-                updateUI(r.updateTxns)
-                Log.i(TAG, "parsed successfully")
-            } else {
-                Snackbar.make(layoutConnect, "Couldn't connect: ${r.error}", Snackbar.LENGTH_LONG).show()
+            if (r.doDisconnect) {
                 clearConnection()
             }
+            if (r.displayMsg != null) {
+                Snackbar.make(layoutConnect, "${r.displayMsg}", Snackbar.LENGTH_LONG).show()
+            }
+            updateUI(r.updateTxns)
         }
 
         override fun onMessage(webSocket: WebSocket?, bytes: ByteString) {
@@ -396,7 +395,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
             Log.e(TAG,"Failed $t")
 
             if (t is ConnectException) {
-                Snackbar.make(layoutConnect, t.localizedMessage, Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(layoutConnect, t.localizedMessage, Snackbar.LENGTH_LONG).show()
             }
 
             disconnected()
