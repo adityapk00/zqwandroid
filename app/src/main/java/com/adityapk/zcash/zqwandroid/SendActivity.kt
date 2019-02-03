@@ -147,8 +147,10 @@ class SendActivity : AppCompatActivity() {
                 parsedAmt.toDouble() <= DataModel.mainResponseData?.maxspendable ?: Double.MAX_VALUE) {
 
                 val alertDialog = AlertDialog.Builder(this@SendActivity)
-                alertDialog.setTitle("Send from t-Addr?")
-                alertDialog.setMessage("$parsedAmt is more than the balance in your sapling address. This Tx will have to be sent from a transparent address, and will not be private.")
+                alertDialog.setTitle("Send from t-addr?")
+                alertDialog.setMessage("${DataModel.mainResponseData?.tokenName} $parsedAmt is more than the balance in " +
+                        "your sapling address. This Tx will have to be sent from a transparent address, and will" +
+                        " not be private.\n\nAre you absolutely sure?")
                 alertDialog.apply {
                     setPositiveButton("Send Anyway") { dialog, id ->
                         approved = true
@@ -165,7 +167,8 @@ class SendActivity : AppCompatActivity() {
 
         // Warning if spending more than total
         if (parsedAmt.toDouble() > DataModel.mainResponseData?.maxspendable ?: Double.MAX_VALUE) {
-            showErrorDialog("Can't spend more than ${DataModel.mainResponseData?.maxspendable} in a single Tx")
+            showErrorDialog("Can't spend more than ${DataModel.mainResponseData?.tokenName} " +
+                    "${DataModel.mainResponseData?.maxspendable} in a single Tx")
             return false
         }
 

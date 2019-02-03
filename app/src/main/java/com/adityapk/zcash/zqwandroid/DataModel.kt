@@ -13,8 +13,10 @@ import java.math.BigInteger
 
 
 object DataModel {
-    class MainResponse(val balance: Double, val maxspendable:Double , val saplingAddress: String,
-                       val tAddress: String, val zecprice: Double, val tokenName: String, val serverversion: String)
+    class MainResponse(val balance: Double, val maxspendable: Double, val maxzspendable: Double? = null,
+                       val saplingAddress: String, val tAddress: String, val zecprice: Double, val tokenName: String,
+                       val serverversion: String)
+
     class TransactionItem(val type: String, val datetime: Long, val amount: String, val memo: String?,
                           val addr: String, val txid: String?, val confirmations: Long)
 
@@ -43,30 +45,6 @@ object DataModel {
 
     fun init() {
         val sodium = NaCl.sodium()
-
-        /*
-        val message = "test".toByteArray()
-        val noncelen = Sodium.crypto_secretbox_noncebytes().toLong()
-        val nonce = ByteArray(noncelen.toInt())
-        val ciphertextlen = Sodium.crypto_secretbox_macbytes() + message.size
-        val ciphertext = ByteArray(ciphertextlen)
-        val secret = ByteArray(Sodium.crypto_secretbox_keybytes())
-
-        Sodium.randombytes_buf(nonce, noncelen.toInt())
-        Sodium.randombytes(secret, Sodium.crypto_secretbox_keybytes())
-
-        println("Noncelen = $noncelen" )
-        println(BigInteger(nonce.toHexString(), 16))
-
-        var ret = Sodium.crypto_secretbox_easy(ciphertext, message, message.size, nonce, secret)
-        Log.i(TAG, ret.toString())
-
-        val decrypted = ByteArray(ciphertext.size - Sodium.crypto_secretbox_macbytes())
-        ret = Sodium.crypto_secretbox_open_easy(decrypted, ciphertext, ciphertextlen, nonce, secret)
-
-        Log.i(TAG, ret.toString())
-        println("Recovered message=" + String(decrypted))
-        */
     }
 
     data class ParseResponse(val updateTxns: Boolean, val error: String?)
