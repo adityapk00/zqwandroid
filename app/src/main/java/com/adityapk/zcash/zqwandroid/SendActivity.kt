@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -107,35 +108,13 @@ class SendActivity : AppCompatActivity() {
         })
 
         btnSend.setOnClickListener { view ->
-            // First, check if the address is correct.
-            val toAddr = sendAddress.text.toString()
-            if (!DataModel.isValidAddress(toAddr)) {
-                showErrorDialog("Invalid destination address!")
+            if (!doValidations())
                 return@setOnClickListener
-            }
 
+            val toAddr = sendAddress.text.toString()
             val amt = amountZEC.text.toString()
             val parsedAmt = amt.substring("${DataModel.mainResponseData?.tokenName} ".length, amt.length)
-            if (parsedAmt.toDoubleOrNull() == 0.0 || parsedAmt.toDoubleOrNull() == null) {
-                showErrorDialog("Invalid amount!")
-                return@setOnClickListener
-            }
-            if (parsedAmt.toDouble() > DataModel.mainResponseData?.maxspendable ?: 0.0) {
-                showErrorDialog("Can't spend more than ${DataModel.mainResponseData?.maxspendable} in a single Tx")
-                return@setOnClickListener
-            }
-
             val memo = txtSendMemo.text.toString()
-            if (memo.length > 512) {
-                showErrorDialog("Memo is too long")
-                return@setOnClickListener
-            }
-
-            if (toAddr.startsWith("t") && !memo.isBlank()) {
-                showErrorDialog("Can't send a memo to a t-Address")
-                return@setOnClickListener
-            }
-
 
             val intent = Intent(this, TxDetailsActivity::class.java)
             val tx = DataModel.TransactionItem("confirm", 0, parsedAmt, memo,
@@ -143,6 +122,65 @@ class SendActivity : AppCompatActivity() {
             intent.putExtra("EXTRA_TXDETAILS", Klaxon().toJsonString(tx))
             startActivityForResult(intent, REQUEST_CONFIRM)
         }
+    }
+
+    var approved : Boolean = false
+    fun doValidations() : Boolean {
+        // First, check if the address is correct.
+        val toAddr = sendAddress.text.toString()
+        if (!DataModel.isValidAddress(toAddr)) {
+            showErrorDialog("Invalid destination address!")
+            return false
+        }
+
+        // Then if the amount is valid
+        val amt = amountZEC.text.toString()
+        val parsedAmt = amt.substring("${DataModel.mainResponseData?.tokenName} ".length, amt.length)
+        if (parsedAmt.toDoubleOrNull() == 0.0 || parsedAmt.toDoubleOrNull() == null) {
+            showErrorDialog("Invalid amount!")
+            return false
+        }
+
+        // Check if this is more than the maxzspendable
+        if (DataModel.mainResponseData?.maxzspendable != null) {
+            if (parsedAmt.toDouble() > DataModel.mainResponseData?.maxzspendable!! &&
+                parsedAmt.toDouble() <= DataModel.mainResponseData?.maxspendable ?: Double.MAX_VALUE) {
+
+                val alertDialog = AlertDialog.Builder(this@SendActivity)
+                alertDialog.setTitle("Send from t-Addr?")
+                alertDialog.setMessage("$parsedAmt is more than the balance in your sapling address. This Tx will have to be sent from a transparent address, and will not be private.")
+                alertDialog.apply {
+                    setPositiveButton("Send Anyway") { dialog, id ->
+                        approved = true
+                    }
+                    setNegativeButton("Cancel") { dialog, id ->
+                        approved = false
+                    }
+                }
+
+                alertDialog.create().show()
+                return approved
+            }
+        }
+
+        // Warning if spending more than total
+        if (parsedAmt.toDouble() > DataModel.mainResponseData?.maxspendable ?: Double.MAX_VALUE) {
+            showErrorDialog("Can't spend more than ${DataModel.mainResponseData?.maxspendable} in a single Tx")
+            return false
+        }
+
+        val memo = txtSendMemo.text.toString()
+        if (memo.length > 512) {
+            showErrorDialog("Memo is too long")
+            return false
+        }
+
+        if (toAddr.startsWith("t") && !memo.isBlank()) {
+            showErrorDialog("Can't send a memo to a t-Address")
+            return false
+        }
+
+        return true
     }
 
     fun showErrorDialog(msg: String) {

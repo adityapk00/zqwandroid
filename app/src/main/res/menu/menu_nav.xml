@@ -5,7 +5,7 @@
     <item android:id="@+id/action_send"
           android:title="Send"
           android:orderInCategory="300"
-          app:showAsAction="never" android:icon="@android:drawable/ic_menu_send"/>
+          app:showAsAction="never" android:icon="@drawable/ic_send_icon"/>
     <item android:title="Balance" android:id="@+id/action_bal" android:icon="@android:drawable/ic_dialog_dialer"
           android:orderInCategory="200"/>
     <item android:title="Receive" android:id="@+id/action_recieve" android:icon="@android:drawable/stat_sys_download"
