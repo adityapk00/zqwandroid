@@ -9,7 +9,7 @@
             tools:replace="android:allowBackup"
             android:name="com.adityapk.zcash.zqwandroid.ZQWApp"
             android:allowBackup="true"
-            android:icon="@mipmap/ic_launcher"
+            android:icon="@mipmap/logo"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/logo_round"
             android:supportsRtl="true"
