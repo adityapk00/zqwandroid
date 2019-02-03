@@ -11,7 +11,6 @@ import org.libsodium.jni.NaCl
 import org.libsodium.jni.Sodium
 import java.math.BigInteger
 
-
 object DataModel {
     class MainResponse(val balance: Double, val maxspendable: Double, val maxzspendable: Double? = null,
                        val saplingAddress: String, val tAddress: String, val zecprice: Double, val tokenName: String,
@@ -53,12 +52,16 @@ object DataModel {
 
         // Check if input string is encrypted
         if (json.containsKey("nonce")) {
-            return parseResponse(decrypt(json["nonce"].toString(), json["payload"].toString()))
+            val decrypted = decrypt(json["nonce"].toString(), json["payload"].toString())
+            if (decrypted.startsWith("error")) {
+                return ParseResponse(false, "Encryption Error: $decrypted", true)
+            }
+            return parseResponse(decrypted)
         }
 
         // Check if it has errored out
-        if (json.containsKey("displayMsg")) {
-            return ParseResponse(false, "Couldn't connect: ${json["displayMsg"].toString()}")
+        if (json.containsKey("error")) {
+            return ParseResponse(false, "Couldn't connect: ${json["error"].toString()}", true)
         }
 
         return when (json.string("command")) {
@@ -81,6 +84,10 @@ object DataModel {
                         tx.long("confirmations") ?: 0)
                 }
                 return ParseResponse(true)
+            }
+            "sendTx" -> {
+                // Ignore
+                return ParseResponse()
             }
             "sendTxSubmitted" -> {
                 val txid = json.string("txid")
@@ -144,13 +151,16 @@ object DataModel {
 
     }
 
-    fun decrypt(nonceHex: String, encHex: String) : String {
-        // Decrypt the hex string into a regular string and return
+    private fun decrypt(nonceHex: String, encHex: String) : String {
+        // Enforce limits on sizes
+        if (nonceHex.length > Sodium.crypto_secretbox_noncebytes() *2 ||
+            encHex.length > 2 * 50 * 1024 /*50kb*/) {
+            return "error: Max size of message exceeded"
+        }
 
         // First make sure the remote nonce is valid
         if (!checkRemoteNonce(nonceHex)) {
-            // TODO: How to handle remote nonce errors?
-            return ""
+            return "error: Remote Nonce was too low"
         }
 
         val encsize = encHex.length / 2
@@ -162,16 +172,15 @@ object DataModel {
 
         val result = Sodium.crypto_secretbox_open_easy(decrypted, encbin, encsize, noncebin, getSecret())
         if (result != 0) {
-            // TODO: Handle decryption errors?
-            return ""
+            return "error: Decryption Error"
         }
 
-        println("Decrypted to: ${String(decrypted)}")
+        Log.i(this.TAG, "Decrypted to: ${String(decrypted)}")
         updateRemoteNonce(nonceHex)
         return String(decrypted)
     }
 
-    fun encrypt(s : String) : String {
+    private fun encrypt(s : String) : String {
         // Pad to 256 bytes, to prevent leaking any info via size of the encrypted message
         var inpStr = s
         if (inpStr.length % 256 > 0) {
@@ -199,7 +208,7 @@ object DataModel {
         return j.toJsonString()
     }
 
-    fun checkRemoteNonce(remoteNonce: String): Boolean {
+    private fun checkRemoteNonce(remoteNonce: String): Boolean {
         val settings = ZQWApp.appContext!!.getSharedPreferences("Secret", 0)
         val prevNonceHex = settings.getString("remotenonce", "00".repeat(Sodium.crypto_secretbox_noncebytes()))!!
 
@@ -210,14 +219,14 @@ object DataModel {
                 BigInteger(prevNonceHex.chunked(2).reversed().joinToString(""), 16)
     }
 
-    fun updateRemoteNonce(remoteNonce: String) {
+    private fun updateRemoteNonce(remoteNonce: String) {
         val settings = ZQWApp.appContext!!.getSharedPreferences("Secret", 0)
         val editor = settings.edit()
         editor.putString("remotenonce", remoteNonce)
         editor.apply()
     }
 
-    fun incAndGetLocalNonce() : ByteArray {
+    private fun incAndGetLocalNonce() : ByteArray {
         val settings = ZQWApp.appContext!!.getSharedPreferences("Secret", 0)
         val nonceHex = settings.getString("localnonce", "00".repeat(Sodium.crypto_secretbox_noncebytes()))
 
@@ -255,10 +264,7 @@ object DataModel {
         editor.remove("localnonce")
         editor.remove("remotenonce")
         editor.apply()
-
     }
 
-
-    private val TAG = "DataModel"
-
+    private const val TAG = "DataModel"
 }

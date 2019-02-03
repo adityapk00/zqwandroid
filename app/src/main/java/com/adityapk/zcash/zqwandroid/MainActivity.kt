@@ -24,7 +24,6 @@ import okio.ByteString
 import java.net.ConnectException
 import java.text.DecimalFormat
 
-
 class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInteractionListener , UnconfirmedTxItemFragment.OnFragmentInteractionListener{
     override fun onFragmentInteraction(uri: Uri) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -371,11 +370,12 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
             Log.i(TAG, "Receiving $text")
 
             val r = DataModel.parseResponse(text!!)
-            if (r.doDisconnect) {
-                clearConnection()
-            }
+
             if (r.displayMsg != null) {
                 Snackbar.make(layoutConnect, "${r.displayMsg}", Snackbar.LENGTH_LONG).show()
+            }
+            if (r.doDisconnect) {
+                clearConnection()
             }
             updateUI(r.updateTxns)
         }
