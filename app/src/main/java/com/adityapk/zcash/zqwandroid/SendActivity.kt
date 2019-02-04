@@ -43,7 +43,7 @@ class SendActivity : AppCompatActivity() {
             startActivityForResult(intent, QrReaderActivity.REQUEST_ADDRESS)
         }
 
-        sendAddress.addTextChangedListener (object : TextWatcher {
+        sendAddress.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun afterTextChanged(s: Editable?) {}
 
@@ -68,7 +68,7 @@ class SendActivity : AppCompatActivity() {
             }
         })
 
-        amountUSD.addTextChangedListener (object : TextWatcher {
+        amountUSD.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun afterTextChanged(s: Editable?) {}
 
@@ -86,14 +86,15 @@ class SendActivity : AppCompatActivity() {
                 if (usd == null || zprice == null)
                     amountZEC.text = "${DataModel.mainResponseData?.tokenName} 0.0"
                 else
-                    amountZEC.text = "${DataModel.mainResponseData?.tokenName} " + DecimalFormat("#.########").format(usd / zprice)
+                    amountZEC.text =
+                        "${DataModel.mainResponseData?.tokenName} " + DecimalFormat("#.########").format(usd / zprice)
             }
         })
 
         txtSendMemo.setImeOptions(EditorInfo.IME_ACTION_DONE);
         txtSendMemo.setRawInputType(InputType.TYPE_CLASS_TEXT);
 
-        txtSendMemo.addTextChangedListener(object: TextWatcher {
+        txtSendMemo.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun afterTextChanged(s: Editable?) {}
 
@@ -108,29 +109,16 @@ class SendActivity : AppCompatActivity() {
         })
 
         btnSend.setOnClickListener { view ->
-            if (!doValidations())
-                return@setOnClickListener
-
-            val toAddr = sendAddress.text.toString()
-            val amt = amountZEC.text.toString()
-            val parsedAmt = amt.substring("${DataModel.mainResponseData?.tokenName} ".length, amt.length)
-            val memo = txtSendMemo.text.toString()
-
-            val intent = Intent(this, TxDetailsActivity::class.java)
-            val tx = DataModel.TransactionItem("confirm", 0, parsedAmt, memo,
-                toAddr, "", 0)
-            intent.putExtra("EXTRA_TXDETAILS", Klaxon().toJsonString(tx))
-            startActivityForResult(intent, REQUEST_CONFIRM)
+            doValidationsThenConfirm()
         }
     }
 
-    var approved : Boolean = false
-    fun doValidations() : Boolean {
+    private fun doValidationsThenConfirm()  {
         // First, check if the address is correct.
         val toAddr = sendAddress.text.toString()
         if (!DataModel.isValidAddress(toAddr)) {
             showErrorDialog("Invalid destination address!")
-            return false
+            return
         }
 
         // Then if the amount is valid
@@ -138,7 +126,7 @@ class SendActivity : AppCompatActivity() {
         val parsedAmt = amt.substring("${DataModel.mainResponseData?.tokenName} ".length, amt.length)
         if (parsedAmt.toDoubleOrNull() == 0.0 || parsedAmt.toDoubleOrNull() == null) {
             showErrorDialog("Invalid amount!")
-            return false
+            return
         }
 
         // Check if this is more than the maxzspendable
@@ -152,16 +140,12 @@ class SendActivity : AppCompatActivity() {
                         "your sapling address. This Tx will have to be sent from a transparent address, and will" +
                         " not be private.\n\nAre you absolutely sure?")
                 alertDialog.apply {
-                    setPositiveButton("Send Anyway") { dialog, id ->
-                        approved = true
-                    }
-                    setNegativeButton("Cancel") { dialog, id ->
-                        approved = false
-                    }
+                    setPositiveButton("Send Anyway") { dialog, id -> doConfirm() }
+                    setNegativeButton("Cancel") { dialog, id -> dialog.cancel() }
                 }
 
                 alertDialog.create().show()
-                return approved
+                return
             }
         }
 
@@ -169,21 +153,34 @@ class SendActivity : AppCompatActivity() {
         if (parsedAmt.toDouble() > DataModel.mainResponseData?.maxspendable ?: Double.MAX_VALUE) {
             showErrorDialog("Can't spend more than ${DataModel.mainResponseData?.tokenName} " +
                     "${DataModel.mainResponseData?.maxspendable} in a single Tx")
-            return false
+            return
         }
 
         val memo = txtSendMemo.text.toString()
         if (memo.length > 512) {
             showErrorDialog("Memo is too long")
-            return false
+            return
         }
 
         if (toAddr.startsWith("t") && !memo.isBlank()) {
             showErrorDialog("Can't send a memo to a t-Address")
-            return false
+            return
         }
 
-        return true
+        doConfirm()
+    }
+
+    private fun doConfirm() {
+        val toAddr = sendAddress.text.toString()
+        val amt = amountZEC.text.toString()
+        val parsedAmt = amt.substring("${DataModel.mainResponseData?.tokenName} ".length, amt.length)
+        val memo = txtSendMemo.text.toString()
+
+        val intent = Intent(this, TxDetailsActivity::class.java)
+        val tx = DataModel.TransactionItem("confirm", 0, parsedAmt, memo,
+            toAddr, "", 0)
+        intent.putExtra("EXTRA_TXDETAILS", Klaxon().toJsonString(tx))
+        startActivityForResult(intent, REQUEST_CONFIRM)
     }
 
     fun showErrorDialog(msg: String) {
