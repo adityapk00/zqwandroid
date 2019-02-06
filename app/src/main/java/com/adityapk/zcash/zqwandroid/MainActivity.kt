@@ -59,9 +59,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         }
 
         swiperefresh.setOnRefreshListener {
-            if (connStatus == DataModel.ConnectionStatus.DISCONNECTED) {
-                makeConnection()
-            }
+            makeConnection()
         }
 
         txtMainBalanceUSD.setOnClickListener {
@@ -235,6 +233,8 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
                                 addPastTransactions(DataModel.transactions)
                             }
                         }
+                    } else {
+                        swiperefresh.isRefreshing = false
                     }
                 }
             }
@@ -430,12 +430,12 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
                 Snackbar.make(layoutConnect, t.localizedMessage, Snackbar.LENGTH_LONG).show()
             }
 
-            disconnected()
-
             // If this was a direct connection and there was a failure to connect, retry connecting
             // without the direct connection (i.e., through wormhole)
-            if (m_directConn) {
+            if (true /*allow remote connection*/ && m_directConn) {
                 makeConnection(false)
+            } else {
+                disconnected()
             }
 
         }
