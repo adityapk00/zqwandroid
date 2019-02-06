@@ -28,6 +28,15 @@ object DataModel {
 
     var ws : WebSocket? = null
 
+
+    enum class ConnectionStatus(val status: Int) {
+        DISCONNECTED(1),
+        CONNECTING(2),
+        CONNECTED(3)
+    }
+
+    var connStatus: ConnectionStatus = ConnectionStatus.DISCONNECTED
+
     fun clear() {
         mainResponseData = null
         transactions = null
@@ -175,7 +184,7 @@ object DataModel {
             return "error: Decryption Error"
         }
 
-        Log.i(this.TAG, "Decrypted to: ${String(decrypted)}")
+        Log.i(this.TAG, "Decrypted to: ${String(decrypted).replace("\n", " ")}")
         updateRemoteNonce(nonceHex)
         return String(decrypted)
     }

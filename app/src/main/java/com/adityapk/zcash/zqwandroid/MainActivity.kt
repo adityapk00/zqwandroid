@@ -26,6 +26,8 @@ import java.net.ConnectException
 import java.text.DecimalFormat
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
+import com.adityapk.zcash.zqwandroid.DataModel.connStatus
+import com.adityapk.zcash.zqwandroid.DataModel.ConnectionStatus
 
 
 class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInteractionListener , UnconfirmedTxItemFragment.OnFragmentInteractionListener{
@@ -57,7 +59,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         }
 
         swiperefresh.setOnRefreshListener {
-            if (connStatus == ConnectionStatus.DISCONNECTED) {
+            if (connStatus == DataModel.ConnectionStatus.DISCONNECTED) {
                 makeConnection()
             }
         }
@@ -89,13 +91,6 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         updateUI(false)
     }
 
-    enum class ConnectionStatus(val status: Int) {
-        DISCONNECTED(1),
-        CONNECTING(2),
-        CONNECTED(3)
-    }
-
-    private var connStatus: ConnectionStatus = ConnectionStatus.DISCONNECTED
 
     // Attempt a connection to the server. If there is no saved connection, we'll set the connection status
     // to None
@@ -108,6 +103,8 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
             return
         }
 
+        println("MakeConnection")
+
         // If still connecting, this is a duplicate call, so do nothing but wait.
         if (connStatus == ConnectionStatus.CONNECTING) {
             return
@@ -119,11 +116,13 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
             return
         }
 
+        println("Attempting new connection $connStatus")
 
         // If direct connection, then connect to the URL in connection string
         if (directConn) {
             // Update status to connecting, so we can update the UI
             connStatus = ConnectionStatus.CONNECTING
+            println("Connstatus = connecting")
 
             val client = OkHttpClient.Builder().connectTimeout(2, TimeUnit.SECONDS).build()
             val request = Request.Builder().url(connString).build()
@@ -135,6 +134,8 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         } else {
             // Connect to the wormhole
             connStatus = ConnectionStatus.CONNECTING
+
+            println("Connstatus = connecting")
 
             val client = OkHttpClient.Builder().connectTimeout(10, TimeUnit.SECONDS).build()
             val request = Request.Builder().url("ws://192.168.5.187:7070").build()
@@ -356,6 +357,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         Log.i(TAG, "Disconnected")
 
         connStatus = ConnectionStatus.DISCONNECTED
+        println("Connstatus = Disconnected")
 
         DataModel.clear()
         updateUI(true)
@@ -383,6 +385,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         override fun onOpen(webSocket: WebSocket, response: Response) {
             Log.d(TAG, "Opened Websocket")
             connStatus = ConnectionStatus.CONNECTED
+            println("Connstatus = connected")
 
             // If this is a connection to wormhole, we have to register ourselves
             if (!m_directConn) {
@@ -414,6 +417,8 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         override fun onClosing(webSocket: WebSocket, code: Int, reason: String?) {
             webSocket.close(1000, null)
             connStatus = ConnectionStatus.DISCONNECTED
+            println("Connstatus = disconnected")
+
             Log.i(TAG,"Closing : $code / $reason")
             disconnected(reason)
         }
