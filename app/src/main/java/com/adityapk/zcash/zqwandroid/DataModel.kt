@@ -203,7 +203,10 @@ object DataModel {
         }
 
         val j = json { obj("nonce" to localNonce.toHexString(),
-                          ("payload" to encrypted.toHexString()))}
+                          ("payload" to encrypted.toHexString()),
+                          ("to" to getWormholeCode())
+                        )}
+        println("Sending ${j.toJsonString()}")
 
         return j.toJsonString()
     }
@@ -250,6 +253,20 @@ object DataModel {
         }
 
         return secretHex.hexStringToByteArray(Sodium.crypto_secretbox_keybytes())
+    }
+
+    fun getWormholeCode() : String? {
+        if (getSecret() == null)
+            return null
+
+        val tobin1 = ByteArray(Sodium.crypto_hash_sha256_bytes())
+        Sodium.crypto_hash_sha256(tobin1, getSecret(), getSecret()!!.size)
+
+        val tobin2 = ByteArray(Sodium.crypto_hash_sha256_bytes())
+        Sodium.crypto_hash_sha256(tobin2, tobin1, tobin1.size)
+
+        return tobin2.toHexString()
+
     }
 
     fun setSecretHex(secretHex: String) {

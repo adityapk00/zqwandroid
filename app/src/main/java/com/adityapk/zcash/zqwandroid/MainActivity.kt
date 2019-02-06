@@ -17,12 +17,16 @@ import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import com.beust.klaxon.Klaxon
+import com.beust.klaxon.json
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import okhttp3.*
 import okio.ByteString
 import java.net.ConnectException
 import java.text.DecimalFormat
+import okhttp3.OkHttpClient
+import java.util.concurrent.TimeUnit
+
 
 class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInteractionListener , UnconfirmedTxItemFragment.OnFragmentInteractionListener{
     override fun onFragmentInteraction(uri: Uri) {
@@ -50,14 +54,12 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
 
         btnReconnect.setOnClickListener {
             makeConnection()
-            updateData()
         }
 
         swiperefresh.setOnRefreshListener {
             if (connStatus == ConnectionStatus.DISCONNECTED) {
                 makeConnection()
             }
-            updateData()
         }
 
         txtMainBalanceUSD.setOnClickListener {
@@ -97,7 +99,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
 
     // Attempt a connection to the server. If there is no saved connection, we'll set the connection status
     // to None
-    private fun makeConnection() {
+    private fun makeConnection(directConn : Boolean = true) {
         val connString = DataModel.getConnString(applicationContext)
         if (connString.isNullOrBlank()) {
             // The user might have just disconnected, so make sure we are disconnected
@@ -106,21 +108,42 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
             return
         }
 
-        // If already connected, then nothing else is to be done.
-        if (connStatus == ConnectionStatus.CONNECTED || connStatus == ConnectionStatus.CONNECTING) {
+        // If still connecting, this is a duplicate call, so do nothing but wait.
+        if (connStatus == ConnectionStatus.CONNECTING) {
             return
         }
 
-        // Update status to connecting, so we can update the UI
-        connStatus = ConnectionStatus.CONNECTING
+        // If already connected, then refresh data
+        if (connStatus == ConnectionStatus.CONNECTED) {
+            updateData()
+            return
+        }
 
-        val client = OkHttpClient()
-        val request = Request.Builder().url(connString).build()
-        val listener = EchoWebSocketListener()
 
-        DataModel.ws = client.newWebSocket(request, listener)
+        // If direct connection, then connect to the URL in connection string
+        if (directConn) {
+            // Update status to connecting, so we can update the UI
+            connStatus = ConnectionStatus.CONNECTING
 
-        updateUI(false)
+            val client = OkHttpClient.Builder().connectTimeout(2, TimeUnit.SECONDS).build()
+            val request = Request.Builder().url(connString).build()
+            val listener = WebsocketClient(true)
+
+            DataModel.ws = client.newWebSocket(request, listener)
+
+            updateUI(false)
+        } else {
+            // Connect to the wormhole
+            connStatus = ConnectionStatus.CONNECTING
+
+            val client = OkHttpClient.Builder().connectTimeout(10, TimeUnit.SECONDS).build()
+            val request = Request.Builder().url("ws://192.168.5.187:7070").build()
+            val listener = WebsocketClient(false)
+
+            DataModel.ws = client.newWebSocket(request, listener)
+
+            updateUI(false)
+        }
     }
 
     private fun updateData() {
@@ -292,7 +315,6 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         Handler().post {
             Log.i(TAG,"OnResume for mainactivity")
             makeConnection()
-            updateData()
         }
 
         super.onResume()
@@ -325,7 +347,6 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
                     DataModel.setConnString(conString, applicationContext)
 
                     makeConnection()
-                    updateData()
                 }
             }
         }
@@ -344,10 +365,10 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         }
     }
 
-    private fun clearConnection() {
+    private fun clearConnection(msg : String? ) {
         Log.i(TAG, "Clearing connection")
 
-        DataModel.ws?.close(1000, "Forcibly closing connection")
+        DataModel.ws?.close(1000, msg ?: "Forcibly closing connection")
 
         // If the server returned an displayMsg, we need to clear out the connection,
         // forcing a reconnection
@@ -356,11 +377,20 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         disconnected()
     }
 
-    private inner class EchoWebSocketListener : WebSocketListener() {
+    private inner class WebsocketClient (directConn: Boolean) : WebSocketListener() {
+        val m_directConn = directConn
 
         override fun onOpen(webSocket: WebSocket, response: Response) {
             Log.d(TAG, "Opened Websocket")
             connStatus = ConnectionStatus.CONNECTED
+
+            // If this is a connection to wormhole, we have to register ourselves
+            if (!m_directConn) {
+                if (!DataModel.getWormholeCode().isNullOrBlank())
+                    webSocket.send( json { obj( "register" to DataModel.getWormholeCode()) }.toJsonString())
+            }
+
+            updateData()
         }
 
         override fun onMessage(webSocket: WebSocket?, text: String?) {
@@ -372,7 +402,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
                 Snackbar.make(layoutConnect, "${r.displayMsg}", Snackbar.LENGTH_LONG).show()
             }
             if (r.doDisconnect) {
-                clearConnection()
+                clearConnection(r.displayMsg)
             }
             updateUI(r.updateTxns)
         }
@@ -396,6 +426,13 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
             }
 
             disconnected()
+
+            // If this was a direct connection and there was a failure to connect, retry connecting
+            // without the direct connection (i.e., through wormhole)
+            if (m_directConn) {
+                makeConnection(false)
+            }
+
         }
     }
 
