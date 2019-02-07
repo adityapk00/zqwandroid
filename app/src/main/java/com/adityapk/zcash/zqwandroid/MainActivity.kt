@@ -2,7 +2,10 @@ package com.adityapk.zcash.zqwandroid
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -16,18 +19,12 @@ import android.widget.Button
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
+import com.adityapk.zcash.zqwandroid.DataModel.ConnectionStatus
+import com.adityapk.zcash.zqwandroid.DataModel.connStatus
 import com.beust.klaxon.Klaxon
-import com.beust.klaxon.json
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
-import okhttp3.*
-import okio.ByteString
-import java.net.ConnectException
 import java.text.DecimalFormat
-import okhttp3.OkHttpClient
-import java.util.concurrent.TimeUnit
-import com.adityapk.zcash.zqwandroid.DataModel.connStatus
-import com.adityapk.zcash.zqwandroid.DataModel.ConnectionStatus
 
 
 class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInteractionListener , UnconfirmedTxItemFragment.OnFragmentInteractionListener{
@@ -55,11 +52,11 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         }
 
         btnReconnect.setOnClickListener {
-            makeConnection()
+            ConnectionManager.refreshAllData()
         }
 
         swiperefresh.setOnRefreshListener {
-            makeConnection()
+            ConnectionManager.refreshAllData()
         }
 
         txtMainBalanceUSD.setOnClickListener {
@@ -87,69 +84,6 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         }
 
         updateUI(false)
-    }
-
-
-    // Attempt a connection to the server. If there is no saved connection, we'll set the connection status
-    // to None
-    private fun makeConnection(directConn : Boolean = true) {
-        val connString = DataModel.getConnString(applicationContext)
-        if (connString.isNullOrBlank()) {
-            // The user might have just disconnected, so make sure we are disconnected
-
-            DataModel.ws?.close(1000, "disconnected")
-            return
-        }
-
-        println("MakeConnection")
-
-        // If still connecting, this is a duplicate call, so do nothing but wait.
-        if (connStatus == ConnectionStatus.CONNECTING) {
-            return
-        }
-
-        // If already connected, then refresh data
-        if (connStatus == ConnectionStatus.CONNECTED) {
-            updateData()
-            return
-        }
-
-        println("Attempting new connection $connStatus")
-
-        // If direct connection, then connect to the URL in connection string
-        if (directConn) {
-            // Update status to connecting, so we can update the UI
-            connStatus = ConnectionStatus.CONNECTING
-            println("Connstatus = connecting")
-
-            val client = OkHttpClient.Builder().connectTimeout(2, TimeUnit.SECONDS).build()
-            val request = Request.Builder().url(connString).build()
-            val listener = WebsocketClient(true)
-
-            DataModel.ws = client.newWebSocket(request, listener)
-
-            updateUI(false)
-        } else {
-            // Connect to the wormhole
-            connStatus = ConnectionStatus.CONNECTING
-
-            println("Connstatus = connecting")
-
-            val client = OkHttpClient.Builder().connectTimeout(10, TimeUnit.SECONDS).build()
-            val request = Request.Builder().url("ws://192.168.5.187:7070").build()
-            val listener = WebsocketClient(false)
-
-            DataModel.ws = client.newWebSocket(request, listener)
-
-            updateUI(false)
-        }
-    }
-
-    private fun updateData() {
-        // If there is a connection, get the data model to update itself
-        if (connStatus != ConnectionStatus.DISCONNECTED) {
-            DataModel.makeAPICalls()
-        }
     }
 
     private fun setMainStatus(status: String) {
@@ -304,7 +238,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
             }
             R.id.action_refresh -> {
                 swiperefresh.isRefreshing = true
-                updateData()
+                ConnectionManager.refreshAllData()
 
                 return true
             }
@@ -312,13 +246,39 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         }
     }
 
-    override fun onResume() {
-        Handler().post {
-            Log.i(TAG,"OnResume for mainactivity")
-            makeConnection()
-        }
 
+    var mReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            // We've received a signal
+            when(intent.getStringExtra("action")) {
+                "newdata" -> {
+                    val updateTxns = intent.getBooleanExtra("updateTxns", false)
+                    updateUI(updateTxns)
+                }
+                "error" -> {
+                    val msg = intent.getStringExtra("msg") ?: "Unknown Error"
+                    Snackbar.make(layoutConnect, msg, Snackbar.LENGTH_LONG).show()
+
+                    // Also check if we need to disconnect
+                    if (intent.getBooleanExtra("doDisconnect", false)) {
+                        disconnected()
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onResume() {
         super.onResume()
+        registerReceiver(mReceiver, IntentFilter(ConnectionManager.DATA_SIGNAL))
+
+        // On resuming, refresh all data
+        ConnectionManager.refreshAllData()
+    }
+
+    override fun onDestroy() {
+        unregisterReceiver(mReceiver)
+        super.onDestroy()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -347,13 +307,13 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
                     DataModel.setSecretHex(secretHex)
                     DataModel.setConnString(conString, applicationContext)
 
-                    makeConnection()
+                    ConnectionManager.refreshAllData()
                 }
             }
         }
     }
 
-    private fun disconnected(reason: String? = null) {
+    private fun disconnected() {
         Log.i(TAG, "Disconnected")
 
         connStatus = ConnectionStatus.DISCONNECTED
@@ -361,84 +321,8 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
 
         DataModel.clear()
         updateUI(true)
-
-        if (!reason.isNullOrEmpty()) {
-            Snackbar.make(layoutConnect, "Server says: ${reason}", Snackbar.LENGTH_LONG).show()
-        }
     }
 
-    private fun clearConnection(msg : String? ) {
-        Log.i(TAG, "Clearing connection")
-
-        DataModel.ws?.close(1000, msg ?: "Forcibly closing connection")
-
-        // If the server returned an displayMsg, we need to clear out the connection,
-        // forcing a reconnection
-        DataModel.setConnString(null, applicationContext)
-
-        disconnected()
-    }
-
-    private inner class WebsocketClient (directConn: Boolean) : WebSocketListener() {
-        val m_directConn = directConn
-
-        override fun onOpen(webSocket: WebSocket, response: Response) {
-            Log.d(TAG, "Opened Websocket")
-            connStatus = ConnectionStatus.CONNECTED
-            println("Connstatus = connected")
-
-            // If this is a connection to wormhole, we have to register ourselves
-            if (!m_directConn) {
-                if (!DataModel.getWormholeCode().isNullOrBlank())
-                    webSocket.send( json { obj( "register" to DataModel.getWormholeCode()) }.toJsonString())
-            }
-
-            updateData()
-        }
-
-        override fun onMessage(webSocket: WebSocket?, text: String?) {
-            Log.i(TAG, "Receiving $text")
-
-            val r = DataModel.parseResponse(text!!)
-
-            if (r.displayMsg != null) {
-                Snackbar.make(layoutConnect, "${r.displayMsg}", Snackbar.LENGTH_LONG).show()
-            }
-            if (r.doDisconnect) {
-                clearConnection(r.displayMsg)
-            }
-            updateUI(r.updateTxns)
-        }
-
-        override fun onMessage(webSocket: WebSocket?, bytes: ByteString) {
-            Log.i(TAG, "Receiving bytes : " + bytes.hex())
-        }
-
-        override fun onClosing(webSocket: WebSocket, code: Int, reason: String?) {
-            webSocket.close(1000, null)
-            connStatus = ConnectionStatus.DISCONNECTED
-            println("Connstatus = disconnected")
-
-            Log.i(TAG,"Closing : $code / $reason")
-            disconnected(reason)
-        }
-
-        override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-            Log.e(TAG,"Failed $t")
-
-            if (t is ConnectException) {
-                Snackbar.make(layoutConnect, t.localizedMessage, Snackbar.LENGTH_LONG).show()
-            }
-
-            disconnected()
-
-            // If this was a direct connection and there was a failure to connect, retry connecting
-            // without the direct connection (i.e., through wormhole)
-            if (m_directConn) {
-                makeConnection(false)
-            }
-        }
-    }
 
     private val TAG = "MainActivity"
 }

@@ -56,6 +56,7 @@ object DataModel {
     }
 
     data class ParseResponse(val updateTxns: Boolean = false, val displayMsg: String? = null, val doDisconnect: Boolean = false)
+
     fun parseResponse(response: String) : ParseResponse {
         val json = Parser.default().parse(StringBuilder(response)) as JsonObject
 
@@ -141,7 +142,7 @@ object DataModel {
             // Connected, but we don't have a secret, so we can't actually connect.
             ws?.close(1000, "No shared secret, can't connect")
         } else {
-            // We make only the first API call here. The subsequent ones are made in processMessage(), when this
+            // We make only the first API call here. The subsequent ones are made in parseResponse(), when this
             // call returns a reply
             val phoneName = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}"
             ws?.send(encrypt(json { obj("command" to "getInfo", "name" to phoneName) }.toJsonString()))
