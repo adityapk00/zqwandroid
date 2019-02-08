@@ -158,15 +158,15 @@ object ConnectionManager {
             DataModel.connStatus = DataModel.ConnectionStatus.DISCONNECTED
 
             // If the connection is direct, and there is no need to connect to
-            val allowInternetConnect = true
-            if (t is ConnectException && (m_directConn && !allowInternetConnect)) {
+
+            if (t is ConnectException && (m_directConn && !DataModel.getAllowInternet())) {
                 sendErrorSignal(t.localizedMessage, true)
                 sendRefreshSignal(false)
             }
 
             // If this was a direct connection and there was a failure to connect, retry connecting
             // without the direct connection (i.e., through wormhole)
-            if (m_directConn && allowInternetConnect) {
+            if (m_directConn && DataModel.getAllowInternet()) {
                 makeConnection(false)
             } else {
                 // Not a direct connection (or we're not allowed to connect to internet) and there was a failure.

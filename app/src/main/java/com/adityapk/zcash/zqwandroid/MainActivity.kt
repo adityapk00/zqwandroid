@@ -298,17 +298,19 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
                     }
 
                     val conComponents = data?.dataString?.split(",")
-                    if (conComponents?.size != 2) {
+                    if (conComponents?.size ?: 0 < 2 || conComponents?.size ?: 0 > 3) {
                         Toast.makeText(applicationContext,
                             "${data?.dataString} is not a valid connection string", Toast.LENGTH_SHORT).show()
                         return
                     }
 
-                    val conString = conComponents[0]
+                    val conString = conComponents!![0]
                     val secretHex = conComponents[1]
+                    val allowInternetConnections = if (conComponents.size == 3) conComponents[2] == "1" else false
 
                     DataModel.setSecretHex(secretHex)
                     DataModel.setConnString(conString, applicationContext)
+                    DataModel.setAllowInternet(allowInternetConnections)
 
                     ConnectionManager.refreshAllData()
                 }

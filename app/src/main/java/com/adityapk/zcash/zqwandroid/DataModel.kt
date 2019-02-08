@@ -254,17 +254,6 @@ object DataModel {
         return nonce
     }
 
-    fun getSecret() : ByteArray? {
-        val settings = ZQWApp.appContext!!.getSharedPreferences("Secret", 0)
-        val secretHex = settings.getString("secret", "")
-
-        if (secretHex.isNullOrEmpty()) {
-            return null
-        }
-
-        return secretHex.hexStringToByteArray(Sodium.crypto_secretbox_keybytes())
-    }
-
     fun getWormholeCode() : String? {
         if (getSecret() == null)
             return null
@@ -291,6 +280,31 @@ object DataModel {
         editor.remove("localnonce")
         editor.remove("remotenonce")
         editor.apply()
+    }
+
+    fun getSecret() : ByteArray? {
+        val settings = ZQWApp.appContext!!.getSharedPreferences("Secret", 0)
+        val secretHex = settings.getString("secret", "")
+
+        if (secretHex.isNullOrEmpty()) {
+            return null
+        }
+
+        return secretHex.hexStringToByteArray(Sodium.crypto_secretbox_keybytes())
+    }
+
+
+    fun setAllowInternet(allow: Boolean) {
+        val settings = ZQWApp.appContext!!.getSharedPreferences("Secret", 0)
+
+        val editor = settings.edit()
+        editor.putBoolean("allowinternet", allow)
+        editor.apply()
+    }
+
+    fun getAllowInternet(): Boolean {
+        val settings = ZQWApp.appContext!!.getSharedPreferences("Secret", 0)
+        return settings.getBoolean("allowinternet", false)
     }
 
     private const val TAG = "DataModel"
