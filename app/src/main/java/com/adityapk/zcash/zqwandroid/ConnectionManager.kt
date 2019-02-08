@@ -48,6 +48,7 @@ object ConnectionManager {
         }
 
         println("Attempting new connection ${DataModel.connStatus}")
+        sendRefreshSignal(false)
 
         // If direct connection, then connect to the URL in connection string
         if (directConn) {
@@ -76,6 +77,13 @@ object ConnectionManager {
 
             DataModel.makeAPICalls()
         }
+    }
+
+    fun sendRefreshSignal(finished: Boolean) {
+        val i = Intent(DATA_SIGNAL)
+        i.putExtra("action", "refresh")
+        i.putExtra("finished", finished)
+        ZQWApp.appContext?.sendBroadcast(i)
     }
 
     fun sendUpdateDataSignal(updateTxns: Boolean = false) {
@@ -126,6 +134,7 @@ object ConnectionManager {
 
             } else {
                 sendUpdateDataSignal(r.updateTxns)
+                sendRefreshSignal(r.updateTxns)
             }
         }
 
@@ -141,6 +150,7 @@ object ConnectionManager {
             if (code == 1001) {
                 sendErrorSignal(reason, true)
             }
+            sendRefreshSignal(true)
         }
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
@@ -151,12 +161,15 @@ object ConnectionManager {
             val allowInternetConnect = true
             if (t is ConnectException && (m_directConn && !allowInternetConnect)) {
                 sendErrorSignal(t.localizedMessage, true)
+                sendRefreshSignal(false)
             }
 
             // If this was a direct connection and there was a failure to connect, retry connecting
             // without the direct connection (i.e., through wormhole)
             if (m_directConn && allowInternetConnect) {
                 makeConnection(false)
+            } else {
+                sendRefreshSignal(false)
             }
         }
     }

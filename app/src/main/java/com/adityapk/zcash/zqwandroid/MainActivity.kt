@@ -251,6 +251,9 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         override fun onReceive(context: Context, intent: Intent) {
             // We've received a signal
             when(intent.getStringExtra("action")) {
+                "refresh" -> {
+                    swiperefresh.isRefreshing = !intent.getBooleanExtra("finished", true)
+                }
                 "newdata" -> {
                     val updateTxns = intent.getBooleanExtra("updateTxns", false)
                     updateUI(updateTxns)
@@ -320,6 +323,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
         println("Connstatus = Disconnected")
 
         DataModel.clear()
+        swiperefresh.isRefreshing = false
         updateUI(true)
     }
 
