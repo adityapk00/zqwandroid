@@ -14,6 +14,7 @@ class SettingsActivity : AppCompatActivity() {
 
         btnDisconnect.setOnClickListener {
             DataModel.setConnString(null, applicationContext)
+            DataModel.clear()
             updateUI()
         }
     }

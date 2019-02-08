@@ -28,6 +28,15 @@ object DataModel {
 
     var ws : WebSocket? = null
 
+
+    enum class ConnectionStatus(val status: Int) {
+        DISCONNECTED(1),
+        CONNECTING(2),
+        CONNECTED(3)
+    }
+
+    var connStatus: ConnectionStatus = ConnectionStatus.DISCONNECTED
+
     fun clear() {
         mainResponseData = null
         transactions = null
@@ -47,6 +56,7 @@ object DataModel {
     }
 
     data class ParseResponse(val updateTxns: Boolean = false, val displayMsg: String? = null, val doDisconnect: Boolean = false)
+
     fun parseResponse(response: String) : ParseResponse {
         val json = Parser.default().parse(StringBuilder(response)) as JsonObject
 
@@ -132,7 +142,7 @@ object DataModel {
             // Connected, but we don't have a secret, so we can't actually connect.
             ws?.close(1000, "No shared secret, can't connect")
         } else {
-            // We make only the first API call here. The subsequent ones are made in processMessage(), when this
+            // We make only the first API call here. The subsequent ones are made in parseResponsegit (), when this
             // call returns a reply
             val phoneName = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}"
             ws?.send(encrypt(json { obj("command" to "getInfo", "name" to phoneName) }.toJsonString()))
@@ -175,7 +185,7 @@ object DataModel {
             return "error: Decryption Error"
         }
 
-        Log.i(this.TAG, "Decrypted to: ${String(decrypted)}")
+        Log.i(this.TAG, "Decrypted to: ${String(decrypted).replace("\n", " ")}")
         updateRemoteNonce(nonceHex)
         return String(decrypted)
     }
@@ -203,7 +213,10 @@ object DataModel {
         }
 
         val j = json { obj("nonce" to localNonce.toHexString(),
-                          ("payload" to encrypted.toHexString()))}
+                          ("payload" to encrypted.toHexString()),
+                          ("to" to getWormholeCode())
+                        )}
+        println("Sending ${j.toJsonString()}")
 
         return j.toJsonString()
     }
@@ -250,6 +263,20 @@ object DataModel {
         }
 
         return secretHex.hexStringToByteArray(Sodium.crypto_secretbox_keybytes())
+    }
+
+    fun getWormholeCode() : String? {
+        if (getSecret() == null)
+            return null
+
+        val tobin1 = ByteArray(Sodium.crypto_hash_sha256_bytes())
+        Sodium.crypto_hash_sha256(tobin1, getSecret(), getSecret()!!.size)
+
+        val tobin2 = ByteArray(Sodium.crypto_hash_sha256_bytes())
+        Sodium.crypto_hash_sha256(tobin2, tobin1, tobin1.size)
+
+        return tobin2.toHexString()
+
     }
 
     fun setSecretHex(secretHex: String) {
