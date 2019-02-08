@@ -169,7 +169,9 @@ object ConnectionManager {
             if (m_directConn && allowInternetConnect) {
                 makeConnection(false)
             } else {
-                sendRefreshSignal(false)
+                // Not a direct connection (or we're not allowed to connect to internet) and there was a failure.
+                sendErrorSignal(t.localizedMessage, true)
+                sendRefreshSignal(true)
             }
         }
     }
