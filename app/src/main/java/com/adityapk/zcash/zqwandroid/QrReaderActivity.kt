@@ -168,7 +168,7 @@ class QrReaderActivity : AppCompatActivity() {
             return
         }
 
-        if (code == REQUEST_ADDRESS && !DataModel.isValidAddress(StringBuilder(barcodeInfo ?: "").toString())) {
+        if (code == REQUEST_ADDRESS && !DataModel.isValidAddress(StringBuilder(barcodeInfo).toString())) {
             Log.i(TAG, "Not an address")
             var err = barcodeInfo
             if (err.length > 48) {
