@@ -17,6 +17,10 @@ class SettingsActivity : AppCompatActivity() {
             DataModel.clear()
             updateUI()
         }
+
+        chkDisallowInternet.setOnClickListener {
+            DataModel.setGlobalAllowInternet(chkDisallowInternet.isChecked)
+        }
     }
 
     fun updateUI() {

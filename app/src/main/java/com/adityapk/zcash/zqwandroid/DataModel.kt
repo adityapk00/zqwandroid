@@ -294,6 +294,19 @@ object DataModel {
     }
 
 
+    fun setGlobalAllowInternet(allow: Boolean) {
+        val settings = ZQWApp.appContext!!.getSharedPreferences("Secret", 0)
+
+        val editor = settings.edit()
+        editor.putBoolean("globalallowinternet", allow)
+        editor.apply()
+    }
+
+    fun getGlobalAllowInternet(): Boolean {
+        val settings = ZQWApp.appContext!!.getSharedPreferences("Secret", 0)
+        return settings.getBoolean("globalallowinternet", false)
+    }
+
     fun setAllowInternet(allow: Boolean) {
         val settings = ZQWApp.appContext!!.getSharedPreferences("Secret", 0)
 

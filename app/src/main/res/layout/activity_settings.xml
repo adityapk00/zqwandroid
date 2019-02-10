@@ -46,20 +46,38 @@
                 android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginEnd="8dp" android:visibility="visible" android:layout_height="2dp"
                 android:layout_marginTop="8dp"/>
-        <TextView
-                android:text="ZecQT Wallet android version"
-                android:layout_width="wrap_content"
+        <CheckBox
+                android:text="Disallow routing over external service/internet"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:id="@+id/textView3" android:layout_marginTop="16dp"
+                android:id="@+id/chkDisallowInternet" android:layout_marginTop="16dp"
                 app:layout_constraintTop_toBottomOf="@+id/divider" app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginStart="16dp" android:textStyle="bold"/>
+                android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="8dp"/>
+        <TextView
+                android:text="If checked, the app will only attempt a direct connection to zec-qt-wallet, and not route traffic over the internet via the external helper service. Please see the FAQ for more details"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView4" app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="16dp" app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="16dp" android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/chkDisallowInternet"/>
+        <View
+                android:id="@+id/divider3"
+                android:layout_width="0dp"
+                android:background="?android:attr/listDivider"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="8dp" android:visibility="visible" android:layout_height="2dp"
+                app:layout_constraintHorizontal_bias="0.0"
+                android:layout_marginTop="16dp" app:layout_constraintTop_toBottomOf="@+id/textView4"/>
         <TextView
                 android:text="TextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/lblVersionName" android:layout_marginTop="16dp"
-                app:layout_constraintTop_toBottomOf="@+id/textView3" app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginStart="16dp"/>
+                android:id="@+id/lblServerVersion" app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="16dp" android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@+id/textView10"/>
         <TextView
                 android:text="zec-qt-wallet server version"
                 android:layout_width="wrap_content"
@@ -68,12 +86,20 @@
                 android:layout_marginStart="16dp" android:layout_marginTop="16dp"
                 app:layout_constraintTop_toBottomOf="@+id/lblVersionName" android:textStyle="bold"/>
         <TextView
+                android:text="ZecQT Wallet android version"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView3" android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/divider3" app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="16dp" android:textStyle="bold" app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="16dp"/>
+        <TextView
                 android:text="TextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/lblServerVersion" app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginStart="16dp" android:layout_marginTop="16dp"
-                app:layout_constraintTop_toBottomOf="@+id/textView10"/>
+                android:id="@+id/lblVersionName" android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@+id/textView3" app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="16dp"/>
         <View
                 android:id="@+id/divider2"
                 android:layout_width="0dp"

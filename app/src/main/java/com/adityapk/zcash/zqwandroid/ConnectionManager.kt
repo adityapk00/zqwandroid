@@ -69,7 +69,7 @@ object ConnectionManager {
 
             println("Connstatus = connecting")
 
-            val client = OkHttpClient.Builder().connectTimeout(10, TimeUnit.SECONDS).build()
+            val client = OkHttpClient.Builder().connectTimeout(5, TimeUnit.SECONDS).build()
             val request = Request.Builder().url("ws://192.168.5.187:7070").build()
             val listener = WebsocketClient(false)
 
@@ -157,16 +157,18 @@ object ConnectionManager {
             Log.e(TAG,"Failed $t")
             DataModel.connStatus = DataModel.ConnectionStatus.DISCONNECTED
 
-            // If the connection is direct, and there is no need to connect to
+            val allowInternet = DataModel.getAllowInternet() && DataModel.getGlobalAllowInternet()
 
-            if (t is ConnectException && (m_directConn && !DataModel.getAllowInternet())) {
+            // If the connection is direct, and there is no need to further connect, so just error out
+            if (t is ConnectException && (m_directConn && !allowInternet)) {
                 sendErrorSignal(t.localizedMessage, true)
-                sendRefreshSignal(false)
+                sendRefreshSignal(true)
+                return
             }
 
             // If this was a direct connection and there was a failure to connect, retry connecting
             // without the direct connection (i.e., through wormhole)
-            if (m_directConn && DataModel.getAllowInternet()) {
+            if (m_directConn && allowInternet) {
                 makeConnection(false)
             } else {
                 // Not a direct connection (or we're not allowed to connect to internet) and there was a failure.
