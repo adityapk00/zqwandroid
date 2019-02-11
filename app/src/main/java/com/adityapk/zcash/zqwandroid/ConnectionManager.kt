@@ -108,10 +108,11 @@ object ConnectionManager {
             DataModel.connStatus = DataModel.ConnectionStatus.CONNECTED
             println("Connstatus = connected")
 
-            // If this is a connection to wormhole, we have to register ourselves
+            // If direct connection, start making API calls to get data.
             if (m_directConn) {
                 DataModel.makeAPICalls()
             } else {
+                // If this is a connection to wormhole, we have to register ourselves before we make any API calls
                 if (!DataModel.getWormholeCode().isNullOrBlank()) {
                     webSocket.send( json { obj( "register" to DataModel.getWormholeCode()) }.toJsonString())
                     DataModel.makeAPICalls()
