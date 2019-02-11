@@ -149,7 +149,6 @@ object DataModel {
         }
     }
 
-
     fun isValidAddress(a: String) : Boolean {
         return if (isTestnet()) {
             Regex("^ztestsapling[a-z0-9]{76}", RegexOption.IGNORE_CASE).matches(a) ||

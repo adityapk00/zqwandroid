@@ -6,6 +6,7 @@ import com.beust.klaxon.json
 import okhttp3.*
 import okio.ByteString
 import java.net.ConnectException
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 
@@ -61,8 +62,6 @@ object ConnectionManager {
             val listener = WebsocketClient(true)
 
             DataModel.ws = client.newWebSocket(request, listener)
-
-            DataModel.makeAPICalls()
         } else {
             // Connect to the wormhole
             DataModel.connStatus = DataModel.ConnectionStatus.CONNECTING
@@ -74,8 +73,6 @@ object ConnectionManager {
             val listener = WebsocketClient(false)
 
             DataModel.ws = client.newWebSocket(request, listener)
-
-            DataModel.makeAPICalls()
         }
     }
 
@@ -112,9 +109,13 @@ object ConnectionManager {
             println("Connstatus = connected")
 
             // If this is a connection to wormhole, we have to register ourselves
-            if (!m_directConn) {
-                if (!DataModel.getWormholeCode().isNullOrBlank())
+            if (m_directConn) {
+                DataModel.makeAPICalls()
+            } else {
+                if (!DataModel.getWormholeCode().isNullOrBlank()) {
                     webSocket.send( json { obj( "register" to DataModel.getWormholeCode()) }.toJsonString())
+                    DataModel.makeAPICalls()
+                }
             }
 
             sendUpdateDataSignal()
