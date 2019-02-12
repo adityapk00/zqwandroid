@@ -76,6 +76,10 @@ object ConnectionManager {
         }
     }
 
+    fun closeConnection() {
+        DataModel.ws?.close(1000, "Close requested")
+    }
+
     fun sendRefreshSignal(finished: Boolean) {
         val i = Intent(DATA_SIGNAL)
         i.putExtra("action", "refresh")

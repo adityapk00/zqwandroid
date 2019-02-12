@@ -15,16 +15,26 @@ class SettingsActivity : AppCompatActivity() {
         btnDisconnect.setOnClickListener {
             DataModel.setConnString(null, applicationContext)
             DataModel.clear()
+            ConnectionManager.closeConnection()
+
             updateUI()
         }
 
         chkDisallowInternet.setOnClickListener {
-            DataModel.setGlobalAllowInternet(chkDisallowInternet.isChecked)
+            DataModel.setGlobalAllowInternet(!chkDisallowInternet.isChecked)
+
+            if (chkDisallowInternet.isChecked) {
+                ConnectionManager.closeConnection()
+            }
+
+            updateUI()
         }
     }
 
     fun updateUI() {
         txtSettingsConnString.text = DataModel.getConnString(ZQWApp.appContext!!) ?: "Not Connected"
+
+        chkDisallowInternet.isChecked = !DataModel.getGlobalAllowInternet()
 
         lblVersionName.text = BuildConfig.VERSION_NAME
         lblServerVersion.text = DataModel.mainResponseData?.serverversion ?: "Not Connected"
