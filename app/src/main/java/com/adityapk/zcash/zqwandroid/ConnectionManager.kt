@@ -6,7 +6,6 @@ import com.beust.klaxon.json
 import okhttp3.*
 import okio.ByteString
 import java.net.ConnectException
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 
@@ -69,7 +68,7 @@ object ConnectionManager {
             println("Connstatus = connecting")
 
             val client = OkHttpClient.Builder().connectTimeout(5, TimeUnit.SECONDS).build()
-            val request = Request.Builder().url("ws://192.168.5.187:7070").build()
+            val request = Request.Builder().url("wss://wormhole.zecqtwallet.com:443").build()
             val listener = WebsocketClient(false)
 
             DataModel.ws = client.newWebSocket(request, listener)

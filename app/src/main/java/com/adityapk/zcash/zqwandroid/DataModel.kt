@@ -303,7 +303,7 @@ object DataModel {
 
     fun getGlobalAllowInternet(): Boolean {
         val settings = ZQWApp.appContext!!.getSharedPreferences("Secret", 0)
-        return settings.getBoolean("globalallowinternet", false)
+        return settings.getBoolean("globalallowinternet", true)
     }
 
     fun setAllowInternet(allow: Boolean) {
