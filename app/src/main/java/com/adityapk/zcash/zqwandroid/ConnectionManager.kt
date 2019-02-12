@@ -6,6 +6,7 @@ import com.beust.klaxon.json
 import okhttp3.*
 import okio.ByteString
 import java.net.ConnectException
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 
@@ -114,7 +115,10 @@ object ConnectionManager {
                 // If this is a connection to wormhole, we have to register ourselves before we make any API calls
                 if (!DataModel.getWormholeCode().isNullOrBlank()) {
                     webSocket.send( json { obj( "register" to DataModel.getWormholeCode()) }.toJsonString())
-                    DataModel.makeAPICalls()
+
+                    // Delay sending the API calls a bit to let the register call finish
+                    Timer().schedule(object : TimerTask() {
+                        override fun run() { DataModel.makeAPICalls()}}, 100)
                 }
             }
 
