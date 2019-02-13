@@ -70,6 +70,7 @@ object ConnectionManager {
 
             val client = OkHttpClient.Builder().connectTimeout(5, TimeUnit.SECONDS).build()
             val request = Request.Builder().url("wss://wormhole.zecqtwallet.com:443").build()
+            //val request = Request.Builder().url("ws://192.168.5.187:7070").build()
             val listener = WebsocketClient(false)
 
             DataModel.ws = client.newWebSocket(request, listener)
@@ -138,7 +139,8 @@ object ConnectionManager {
                 sendErrorSignal(r.displayMsg, r.doDisconnect)
 
                 if (r.doDisconnect) {
-                    webSocket?.close(1000, "Peer Error caused disconnect")
+                    // We don't pass a reason here, because we already sent the error signal above
+                    webSocket?.close(1000, null)
                 }
 
             } else {
@@ -156,9 +158,9 @@ object ConnectionManager {
             println("Connstatus = disconnected")
 
             Log.i(TAG,"Closing : $code / $reason")
-            if (code == 1001) {
-                sendErrorSignal(reason, true)
-            }
+            //if (!reason.isNullOrEmpty()) {
+            //    sendErrorSignal(reason, true)
+            //}
             sendRefreshSignal(true)
         }
 

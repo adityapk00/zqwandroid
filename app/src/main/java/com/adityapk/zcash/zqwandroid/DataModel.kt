@@ -60,6 +60,15 @@ object DataModel {
     fun parseResponse(response: String) : ParseResponse {
         val json = Parser.default().parse(StringBuilder(response)) as JsonObject
 
+        // Check if it has errored out
+        if (json.containsKey("error")) {
+            return ParseResponse(false, "Couldn't connect: ${json["error"].toString()}", true)
+        }
+
+        if (json.containsKey("ping")) {
+            return ParseResponse(false)
+        }
+
         // Check if input string is encrypted
         if (json.containsKey("nonce")) {
             val decrypted = decrypt(json["nonce"].toString(), json["payload"].toString())
@@ -67,11 +76,6 @@ object DataModel {
                 return ParseResponse(false, "Encryption Error: $decrypted", true)
             }
             return parseResponse(decrypted)
-        }
-
-        // Check if it has errored out
-        if (json.containsKey("error")) {
-            return ParseResponse(false, "Couldn't connect: ${json["error"].toString()}", true)
         }
 
         return when (json.string("command")) {
