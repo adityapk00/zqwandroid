@@ -172,7 +172,14 @@ object ConnectionManager {
 
             // If the connection is direct, and there is no need to further connect, so just error out
             if (t is ConnectException && (m_directConn && !allowInternet)) {
-                sendErrorSignal(t.localizedMessage, true)
+                var mesg = t.localizedMessage
+                if (!DataModel.getAllowInternet()) {
+                    mesg += ": Connecting over the internet was not enabled by the desktop node."
+                } else if (!DataModel.getGlobalAllowInternet()) {
+                    mesg += ": Connecting over the internet is disabled in settings."
+                }
+
+                sendErrorSignal(mesg, true)
                 sendRefreshSignal(true)
                 return
             }
