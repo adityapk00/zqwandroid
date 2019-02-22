@@ -70,10 +70,15 @@ object ConnectionManager {
 
             val client = OkHttpClient.Builder().connectTimeout(5, TimeUnit.SECONDS).build()
             val request = Request.Builder().url("wss://wormhole.zecqtwallet.com:443").build()
+            //val request = Request.Builder().url("ws://192.168.5.187:7070").build()
             val listener = WebsocketClient(false)
 
             DataModel.ws = client.newWebSocket(request, listener)
         }
+    }
+
+    fun closeConnection() {
+        DataModel.ws?.close(1000, "Close requested")
     }
 
     fun sendRefreshSignal(finished: Boolean) {
@@ -134,7 +139,8 @@ object ConnectionManager {
                 sendErrorSignal(r.displayMsg, r.doDisconnect)
 
                 if (r.doDisconnect) {
-                    webSocket?.close(1000, "Peer Error caused disconnect")
+                    // We don't pass a reason here, because we already sent the error signal above
+                    webSocket?.close(1000, null)
                 }
 
             } else {
@@ -152,9 +158,9 @@ object ConnectionManager {
             println("Connstatus = disconnected")
 
             Log.i(TAG,"Closing : $code / $reason")
-            if (code == 1001) {
-                sendErrorSignal(reason, true)
-            }
+            //if (!reason.isNullOrEmpty()) {
+            //    sendErrorSignal(reason, true)
+            //}
             sendRefreshSignal(true)
         }
 
@@ -166,7 +172,14 @@ object ConnectionManager {
 
             // If the connection is direct, and there is no need to further connect, so just error out
             if (t is ConnectException && (m_directConn && !allowInternet)) {
-                sendErrorSignal(t.localizedMessage, true)
+                var mesg = t.localizedMessage
+                if (!DataModel.getAllowInternet()) {
+                    mesg += ": Connecting over the internet was not enabled by the desktop node."
+                } else if (!DataModel.getGlobalAllowInternet()) {
+                    mesg += ": Connecting over the internet is disabled in settings."
+                }
+
+                sendErrorSignal(mesg, true)
                 sendRefreshSignal(true)
                 return
             }

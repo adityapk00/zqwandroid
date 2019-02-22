@@ -259,8 +259,11 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
                     updateUI(updateTxns)
                 }
                 "error" -> {
-                    val msg = intent.getStringExtra("msg") ?: "Unknown Error"
-                    Snackbar.make(layoutConnect, msg, Snackbar.LENGTH_LONG).show()
+                    val msg = intent.getStringExtra("msg")
+
+                    if (!msg.isNullOrEmpty()) {
+                        Snackbar.make(layoutConnect, msg, Snackbar.LENGTH_LONG).show()
+                    }
 
                     // Also check if we need to disconnect
                     if (intent.getBooleanExtra("doDisconnect", false)) {
