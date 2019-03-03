@@ -192,11 +192,30 @@ class SendActivity : AppCompatActivity() {
         alertDialog.show()
     }
 
+    private fun Double.format(digits: Int): String? = java.lang.String.format("%.${digits}f", this)
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             QrReaderActivity.REQUEST_ADDRESS -> {
                 if (resultCode == Activity.RESULT_OK) {
-                    sendAddress.setText(data?.dataString ?: "nothing", TextView.BufferType.EDITABLE)
+                    if (data?.scheme == "zcash") {
+                        sendAddress.setText(data.data?.host ?: "", TextView.BufferType.EDITABLE)
+
+                        val amt = data.data?.getQueryParameter("amt") ?:
+                                    data.data?.getQueryParameter("amount")
+                        if (amt != null) {
+                            val amtUsd = amt.toDouble() * (DataModel.mainResponseData?.zecprice ?: 0.0)
+                            amountUSD.setText(amtUsd.format(2))
+                            amountZEC.text = "${DataModel.mainResponseData?.tokenName} $amt"
+                        }
+
+                        val memo = data.data?.getQueryParameter("memo")
+                        if (memo != null) {
+                            txtSendMemo.setText(memo)
+                        }
+                    } else {
+                        sendAddress.setText(data?.dataString ?: "", TextView.BufferType.EDITABLE)
+                    }
 
                     amountUSD.requestFocus()
                     val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
