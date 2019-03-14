@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      xmlns:compat="http://schemas.android.com/apk/res-auto"
+      tools:context="com.adityapk.zcash.zqwandroid.TxDetailsActivity">
+    <item android:id="@+id/action_view"
+          android:title="View"
+          android:orderInCategory="100"
+          app:showAsAction="ifRoom" android:icon="@android:drawable/ic_menu_view"/>
+</menu>
