@@ -37,6 +37,12 @@ class SendActivity : AppCompatActivity() {
         txtValidAddress.text = ""
         txtSendCurrencySymbol.text = ""
 
+        if (intent.getStringExtra("address") != null)
+            sendAddress.setText(intent.getStringExtra("address"), TextView.BufferType.EDITABLE)
+
+        if (intent.getDoubleExtra("amount", -1.0) > 0)
+            setAmountUSD(intent.getDoubleExtra("amount", 0.0))
+
         imageButton.setOnClickListener { view ->
             val intent = Intent(this, QrReaderActivity::class.java)
             intent.putExtra("REQUEST_CODE", QrReaderActivity.REQUEST_ADDRESS)
@@ -91,8 +97,8 @@ class SendActivity : AppCompatActivity() {
             }
         })
 
-        txtSendMemo.setImeOptions(EditorInfo.IME_ACTION_DONE);
-        txtSendMemo.setRawInputType(InputType.TYPE_CLASS_TEXT);
+        txtSendMemo.imeOptions = EditorInfo.IME_ACTION_DONE
+        txtSendMemo.setRawInputType(InputType.TYPE_CLASS_TEXT)
 
         txtSendMemo.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -194,6 +200,28 @@ class SendActivity : AppCompatActivity() {
 
     private fun Double.format(digits: Int): String? = java.lang.String.format("%.${digits}f", this)
 
+    private fun setAmountUSD(amt: Double) {
+        amountUSD.setText(amt.format(2))
+        setAmount(amt / (DataModel.mainResponseData?.zecprice ?: 0.0))
+    }
+
+    private fun setAmount(amt: Double?) {
+        val zprice = DataModel.mainResponseData?.zecprice
+
+        if (amt == null) {
+            txtSendCurrencySymbol.text = "" // Let the placeholder show the "$" sign
+        } else {
+            txtSendCurrencySymbol.text = "$"
+        }
+
+        if (amt == null || zprice == null)
+            amountZEC.text = "${DataModel.mainResponseData?.tokenName} 0.0"
+        else
+            amountZEC.text =
+                "${DataModel.mainResponseData?.tokenName} " + DecimalFormat("#.########").format(amt)
+
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             QrReaderActivity.REQUEST_ADDRESS -> {
@@ -204,9 +232,7 @@ class SendActivity : AppCompatActivity() {
                         val amt = data.data?.getQueryParameter("amt") ?:
                                     data.data?.getQueryParameter("amount")
                         if (amt != null) {
-                            val amtUsd = amt.toDouble() * (DataModel.mainResponseData?.zecprice ?: 0.0)
-                            amountUSD.setText(amtUsd.format(2))
-                            amountZEC.text = "${DataModel.mainResponseData?.tokenName} $amt"
+                            setAmountUSD(amt.toDouble())
                         }
 
                         val memo = data.data?.getQueryParameter("memo")

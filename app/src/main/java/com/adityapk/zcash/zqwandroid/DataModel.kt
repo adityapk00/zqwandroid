@@ -153,7 +153,10 @@ object DataModel {
         }
     }
 
-    fun isValidAddress(a: String) : Boolean {
+    fun isValidAddress(a: String?) : Boolean {
+        if (a == null)
+            return false
+
         return if (isTestnet()) {
             Regex("^ztestsapling[a-z0-9]{76}", RegexOption.IGNORE_CASE).matches(a) ||
                     Regex("^tm[a-z0-9]{33}$", RegexOption.IGNORE_CASE).matches(a)
@@ -161,7 +164,10 @@ object DataModel {
             Regex("^z[a-z0-9]{77}$", RegexOption.IGNORE_CASE).matches(a) ||
                     Regex("^t[a-z0-9]{34}$", RegexOption.IGNORE_CASE).matches(a)
         }
+    }
 
+    fun isSaplingAddress(a: String?) : Boolean {
+        return a?.startsWith("zs") ?: false || a?.startsWith("ztestsapling") ?: false
     }
 
     private fun decrypt(nonceHex: String, encHex: String) : String {
