@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity(), TransactionItemFragment.OnFragmentInte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        title = "Zec QT Wallet"
+        title = getString(R.string.app_name)
 
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)

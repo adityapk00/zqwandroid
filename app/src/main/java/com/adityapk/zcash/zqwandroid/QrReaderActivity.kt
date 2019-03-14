@@ -180,9 +180,18 @@ class QrReaderActivity : AppCompatActivity() {
             return
         }
 
+
         // The data seems valid, so return it.
         val data = Intent()
-        data.data = Uri.parse(barcodeInfo)
+
+        // Payment URIs are often formatted as "zcash:<addr>", but this casuses parsing problems.
+        // So change it to zcash://<addr>, so that it parses properly
+        if (barcodeInfo.startsWith("zcash:") && !barcodeInfo.startsWith("zcash://")) {
+            data.data = Uri.parse(barcodeInfo.replaceFirst("zcash:", "zcash://"))
+        } else {
+            data.data = Uri.parse(barcodeInfo)
+        }
+
         setResult(Activity.RESULT_OK, data)
         finish()
     }
