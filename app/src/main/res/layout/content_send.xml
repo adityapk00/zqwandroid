@@ -157,10 +157,19 @@
                     android:layout_height="wrap_content"
                     app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
                     android:id="@+id/btnSend"
-                    app:layout_constraintTop_toBottomOf="@+id/MemoLayout" android:background="@color/colorAccent"
+                    android:background="@color/colorAccent"
                     android:textColor="@android:color/white" tools:layout_conversion_absoluteHeight="48dp"
-                    tools:layout_editor_absoluteY="8dp" tools:layout_editor_absoluteX="0dp"
-                    tools:layout_conversion_absoluteWidth="88dp"/>
+                    tools:layout_conversion_absoluteWidth="88dp"
+                    app:layout_constraintHorizontal_bias="0.498"
+                    app:layout_constraintTop_toBottomOf="@+id/chkIncludeReplyTo" android:layout_marginTop="8dp"/>
+            <CheckBox
+                    android:text="Include ReplyTo Address"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/chkIncludeReplyTo"
+                    app:layout_constraintTop_toBottomOf="@+id/MemoLayout"
+                    app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="16dp"
+                    app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="16dp"/>
         </android.support.constraint.ConstraintLayout>
     </ScrollView>
 </android.support.constraint.ConstraintLayout>

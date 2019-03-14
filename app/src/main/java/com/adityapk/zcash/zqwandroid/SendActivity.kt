@@ -43,6 +43,9 @@ class SendActivity : AppCompatActivity() {
         if (intent.getDoubleExtra("amount", -1.0) > 0)
             setAmountUSD(intent.getDoubleExtra("amount", 0.0))
 
+        if (intent.getBooleanExtra("includeReplyTo", false))
+            chkIncludeReplyTo.isChecked = true
+
         imageButton.setOnClickListener { view ->
             val intent = Intent(this, QrReaderActivity::class.java)
             intent.putExtra("REQUEST_CODE", QrReaderActivity.REQUEST_ADDRESS)
@@ -135,6 +138,8 @@ class SendActivity : AppCompatActivity() {
             return
         }
 
+        println("Maxzspendable ${DataModel.mainResponseData?.maxzspendable}")
+
         // Check if this is more than the maxzspendable
         if (DataModel.mainResponseData?.maxzspendable != null) {
             if (parsedAmt.toDouble() > DataModel.mainResponseData?.maxzspendable!! &&
@@ -162,7 +167,7 @@ class SendActivity : AppCompatActivity() {
             return
         }
 
-        val memo = txtSendMemo.text.toString()
+        val memo = txtSendMemo.text.toString() + getReplyToAddressIfChecked(toAddr)
         if (memo.length > 512) {
             showErrorDialog("Memo is too long")
             return
@@ -180,13 +185,21 @@ class SendActivity : AppCompatActivity() {
         val toAddr = sendAddress.text.toString()
         val amt = amountZEC.text.toString()
         val parsedAmt = amt.substring("${DataModel.mainResponseData?.tokenName} ".length, amt.length)
-        val memo = txtSendMemo.text.toString()
+        val memo = txtSendMemo.text.toString() + getReplyToAddressIfChecked(toAddr)
 
         val intent = Intent(this, TxDetailsActivity::class.java)
         val tx = DataModel.TransactionItem("confirm", 0, parsedAmt, memo,
             toAddr, "", 0)
         intent.putExtra("EXTRA_TXDETAILS", Klaxon().toJsonString(tx))
         startActivityForResult(intent, REQUEST_CONFIRM)
+    }
+
+    private fun getReplyToAddressIfChecked(toAddr: String) : String {
+        if (chkIncludeReplyTo.isChecked && !toAddr.startsWith("t")) {
+            return "\nReply to:\n${DataModel.mainResponseData?.saplingAddress}"
+        } else {
+            return ""
+        }
     }
 
     fun showErrorDialog(msg: String) {

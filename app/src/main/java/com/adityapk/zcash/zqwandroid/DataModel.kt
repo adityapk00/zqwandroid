@@ -80,6 +80,7 @@ object DataModel {
 
         return when (json.string("command")) {
             "getInfo" -> {
+                println("Getinfo Response: $response")
                 mainResponseData = Klaxon().parse<MainResponse>(response)
 
                 // Call the next API call

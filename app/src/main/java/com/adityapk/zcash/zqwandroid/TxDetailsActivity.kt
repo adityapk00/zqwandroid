@@ -84,6 +84,7 @@ class TxDetailsActivity : AppCompatActivity() {
                 val intent = Intent(this, SendActivity::class.java)
                 intent.putExtra("address", getReplyToAddress(tx?.memo))
                 intent.putExtra("amount", 0.01)
+                intent.putExtra("includeReplyTo", true)
                 startActivity(intent)
             }
         }
