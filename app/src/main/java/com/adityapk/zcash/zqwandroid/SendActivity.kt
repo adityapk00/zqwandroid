@@ -218,7 +218,11 @@ class SendActivity : AppCompatActivity() {
         setAmount(amt / (DataModel.mainResponseData?.zecprice ?: 0.0))
     }
 
-    private fun setAmountZec(amt: Double) {
+    private fun setAmountZec(amt: Double?) {
+        if (amt == null) {
+            return;
+        }
+
         // Since there is a text-change listner on the USD field, we set the USD first, then override the
         // ZEC field manually.
         val zprice = DataModel.mainResponseData?.zecprice ?: 0.0
@@ -252,10 +256,14 @@ class SendActivity : AppCompatActivity() {
                     if (data?.scheme == "zcash") {
                         sendAddress.setText(data.data?.host ?: "", TextView.BufferType.EDITABLE)
 
-                        val amt = data.data?.getQueryParameter("amt") ?:
+                        var amt = data.data?.getQueryParameter("amt") ?:
                                     data.data?.getQueryParameter("amount")
+
+                        // Remove all commas.
+                        amt = amt?.replace(",", ".")
+
                         if (amt != null) {
-                            setAmountZec(amt.toDouble())
+                            setAmountZec(amt.toDoubleOrNull())
                         }
 
                         val memo = data.data?.getQueryParameter("memo")
