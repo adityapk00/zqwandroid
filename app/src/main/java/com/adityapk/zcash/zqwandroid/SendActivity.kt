@@ -218,6 +218,16 @@ class SendActivity : AppCompatActivity() {
         setAmount(amt / (DataModel.mainResponseData?.zecprice ?: 0.0))
     }
 
+    private fun setAmountZec(amt: Double) {
+        // Since there is a text-change listner on the USD field, we set the USD first, then override the
+        // ZEC field manually.
+        val zprice = DataModel.mainResponseData?.zecprice ?: 0.0
+        amountUSD.setText( (zprice * amt).format(2))
+
+        amountZEC.text =
+                "${DataModel.mainResponseData?.tokenName} " + DecimalFormat("#.########").format(amt)
+    }
+
     private fun setAmount(amt: Double?) {
         val zprice = DataModel.mainResponseData?.zecprice
 
@@ -245,7 +255,7 @@ class SendActivity : AppCompatActivity() {
                         val amt = data.data?.getQueryParameter("amt") ?:
                                     data.data?.getQueryParameter("amount")
                         if (amt != null) {
-                            setAmountUSD(amt.toDouble())
+                            setAmountZec(amt.toDouble())
                         }
 
                         val memo = data.data?.getQueryParameter("memo")
