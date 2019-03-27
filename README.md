@@ -1,8 +1,8 @@
-# ZecQT Android - Android frontend for zec-qt-wallet
+# Zec Wallet Android - Android frontend for Zec Wallet
 
-ZecQT Android is an Android frontend for zec-qt-wallet that lets you send and receive shielded payments from your mobile phone. It's available on the [Google Play Store](https://play.google.com/store/apps/details?id=com.adityapk.zcash.zqwandroid). You can also head over to the [Releases page](https://github.com/adityapk00/zqwandroid/releases) to download an APK. 
+Zec Wallet Android is an Android frontend for the desktop Zec Wallet that lets you send and receive shielded payments from your mobile phone. It's available on the [Google Play Store](https://play.google.com/store/apps/details?id=com.adityapk.zcash.zqwandroid). You can also head over to the [Releases page](https://github.com/adityapk00/zqwandroid/releases) to download an APK. 
 
-### Run zec-qt-wallet
+### Run Zec Wallet
 In order to let your Android phone connect to your desktop, you need to the deskop [zec-qt-wallet](https://github.com/ZcashFoundation/zec-qt-wallet).
 
 After your node is synced, go to `Apps -> Connect Mobile App` to view the connection QR Code, which you can scan from the Android App. 
