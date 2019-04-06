@@ -18,7 +18,7 @@
                       app:layout_constraintBottom_toTopOf="parent" app:layout_constraintTop_toTopOf="parent"
                       app:layout_constraintStart_toStartOf="parent"/>
         <TextView
-                android:text="192.168.5.148"
+                android:text="address"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/txtSettingsConnString"
@@ -55,7 +55,7 @@
                 android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginEnd="8dp"/>
         <TextView
-                android:text="If checked, the app will only attempt a direct connection to zec-qt-wallet, and not route traffic over the internet via the external helper service. Please see the FAQ for more details"
+                android:text="If checked, the app will only attempt a direct connection to ZecWallet, and not route traffic over the internet via the external helper service. Please see the FAQ for more details"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/textView4" app:layout_constraintStart_toStartOf="parent"

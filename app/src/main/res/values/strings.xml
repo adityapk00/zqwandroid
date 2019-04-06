@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Zec Wallet</string>
+    <string name="app_name">ZecWallet</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_scrolling">ScrollingActivity</string>
 
