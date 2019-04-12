@@ -57,6 +57,7 @@ object DataModel {
 
     data class ParseResponse(val updateTxns: Boolean = false, val displayMsg: String? = null, val doDisconnect: Boolean = false)
 
+    // Parse the encrypted response string. This will decrypt it and pass it to parseDecryptedResponse()
     fun parseResponse(response: String) : ParseResponse {
         val json = Parser.default().parse(StringBuilder(response)) as JsonObject
 
@@ -75,8 +76,16 @@ object DataModel {
             if (decrypted.startsWith("error")) {
                 return ParseResponse(false, "Encryption Error: $decrypted", true)
             }
-            return parseResponse(decrypted)
+            return parseDecryptedResponse(decrypted)
+        } else {
+            // The input is unrecognized
+            return ParseResponse(false, "Unknown message received, JSON was missing a 'nonce'", true)
         }
+    }
+
+    // Parse a decrypted response, which is expected to have a command's response
+    fun parseDecryptedResponse(response: String): ParseResponse {
+        val json = Parser.default().parse(StringBuilder(response)) as JsonObject
 
         return when (json.string("command")) {
             "getInfo" -> {
