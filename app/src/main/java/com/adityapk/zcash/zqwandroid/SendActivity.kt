@@ -68,10 +68,12 @@ class SendActivity : AppCompatActivity() {
 
                 if (s?.startsWith("t") == true) {
                     txtSendMemo.isEnabled = false
+                    chkIncludeReplyTo.isEnabled = false
                     txtSendMemo.text = SpannableStringBuilder("")
                     txtSendMemoTitle.text = "(No Memo for t-Addresses)"
                 } else {
                     txtSendMemo.isEnabled = true
+                    chkIncludeReplyTo.isEnabled = true
                     txtSendMemoTitle.text = "Memo (Optional)"
                 }
             }
